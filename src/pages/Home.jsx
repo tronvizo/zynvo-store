@@ -1,0 +1,335 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Grid,
+  Skeleton,
+  Paper
+} from '@mui/material';
+import {
+  Explore as ExploreIcon,
+  VerifiedUserOutlined as VerifiedIcon,
+  LocalShippingOutlined as ShippingIcon,
+  BoltOutlined as InstantIcon
+} from '@mui/icons-material';
+import { Link } from 'react-router-dom';
+import CategoryChips from '../components/CategoryChips';
+import ProductScrollSection from '../components/ProductScrollSection';
+import { useCategories } from '../hooks/useCategories';
+import { getNewProducts, getPopularProducts, getAllProducts } from '../services/productService';
+
+export default function Home() {
+  const { categories, categoriesMap, loading: categoriesLoading } = useCategories();
+  const [newProducts, setNewProducts] = useState([]);
+  const [popularProducts, setPopularProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadHomeData() {
+      setLoading(true);
+      try {
+        const [news, popular, all] = await Promise.all([
+          getNewProducts(10),
+          getPopularProducts(10),
+          getAllProducts(10)
+        ]);
+        setNewProducts(news);
+        setPopularProducts(popular);
+        setAllProducts(all);
+      } catch (err) {
+        console.error('Failed to load homepage sections:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadHomeData();
+  }, []);
+
+  const hasAnyProducts = newProducts.length > 0 || popularProducts.length > 0 || allProducts.length > 0;
+
+  return (
+    <Box sx={{ pb: 8 }}>
+      {/* Hero Section */}
+      <Box
+        sx={{
+          backgroundColor: '#FFFFFF',
+          borderBottom: '1px solid #E5E7EB',
+          py: { xs: 5, md: 8 },
+          mb: 4
+        }}
+      >
+        <Container maxWidth="xl">
+          <Box sx={{ maxWidth: 780 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                color: '#10B981',
+                textTransform: 'uppercase',
+                display: 'inline-block',
+                mb: 1
+              }}
+            >
+              Curated Affiliate Showcase
+            </Typography>
+            <Typography
+              variant="h1"
+              sx={{
+                fontWeight: 800,
+                color: '#111111',
+                lineHeight: 1.15,
+                mb: 2,
+                fontSize: { xs: '2rem', sm: '2.8rem', md: '3.2rem' }
+              }}
+            >
+              Elevate Your Everyday Essentials.
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: '#4B5563',
+                fontSize: { xs: '1rem', md: '1.15rem' },
+                lineHeight: 1.6,
+                mb: 3.5,
+                maxWidth: 620
+              }}
+            >
+              Discover handpicked gear, audio hardware, smart peripherals, and desk aesthetics. Every item verified with direct partner links for seamless shopping.
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              <Button
+                component={Link}
+                to="/products"
+                variant="contained"
+                color="primary"
+                size="large"
+                startIcon={<ExploreIcon />}
+                sx={{
+                  borderRadius: '8px',
+                  px: 3,
+                  py: 1.2,
+                  fontSize: '0.95rem'
+                }}
+              >
+                Browse Full Catalog
+              </Button>
+              <Button
+                component={Link}
+                to="/products?sort=popular"
+                variant="outlined"
+                size="large"
+                sx={{
+                  borderRadius: '8px',
+                  px: 3,
+                  py: 1.2,
+                  fontSize: '0.95rem',
+                  borderColor: '#D1D5DB',
+                  color: '#111111',
+                  '&:hover': {
+                    borderColor: '#111111',
+                    backgroundColor: '#F9FAFB'
+                  }
+                }}
+              >
+                Explore Most Popular
+              </Button>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* Main Container */}
+      <Container maxWidth="xl">
+        
+        {/* Category Chips Bar */}
+        <Box sx={{ mb: 5 }}>
+          <Typography
+            variant="subtitle2"
+            sx={{
+              color: '#6B7280',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              fontSize: '0.75rem',
+              mb: 1.5
+            }}
+          >
+            Categories
+          </Typography>
+          {categoriesLoading ? (
+            <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'hidden' }}>
+              {[1, 2, 3, 4, 5].map((k) => (
+                <Skeleton key={k} variant="rounded" width={140} height={42} sx={{ borderRadius: '20px' }} />
+              ))}
+            </Box>
+          ) : (
+            <CategoryChips categories={categories} />
+          )}
+        </Box>
+
+        {/* Loading Skeletons */}
+        {loading && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, my: 4 }}>
+            {[1, 2].map((s) => (
+              <Box key={s}>
+                <Skeleton width={200} height={32} sx={{ mb: 2 }} />
+                <Box sx={{ display: 'flex', gap: 2.5, overflowX: 'hidden' }}>
+                  {[1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} variant="rounded" width={260} height={340} sx={{ borderRadius: '12px' }} />
+                  ))}
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        {/* Empty Catalog Notice */}
+        {!loading && !hasAnyProducts && (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 6,
+              textAlign: 'center',
+              borderRadius: '16px',
+              border: '1px dashed #D1D5DB',
+              backgroundColor: '#FFFFFF',
+              my: 6
+            }}
+          >
+            <Typography variant="h5" sx={{ fontWeight: 700, mb: 1.5 }}>
+              Catalog is currently empty
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 460, mx: 'auto', mb: 3 }}>
+              No products have been added to ZYNVO STORE yet. You can sign in to the Admin Panel to populate or seed demo items.
+            </Typography>
+            <Button
+              component={Link}
+              to="/admin"
+              variant="contained"
+              sx={{ backgroundColor: '#111111', borderRadius: '8px' }}
+            >
+              Go to Admin Panel
+            </Button>
+          </Paper>
+        )}
+
+        {/* 1. New Products Section */}
+        {!loading && (
+          <ProductScrollSection
+            title="New Arrivals"
+            subtitle="Latest handpicked gadgets and peripherals added to the store"
+            products={newProducts}
+            viewAllLink="/products?sort=new"
+            categoriesMap={categoriesMap}
+          />
+        )}
+
+        {/* 2. Most Popular Section */}
+        {!loading && (
+          <ProductScrollSection
+            title="Most Popular"
+            subtitle="Top-rated tech and community favorite picks"
+            products={popularProducts}
+            viewAllLink="/products?sort=popular"
+            categoriesMap={categoriesMap}
+          />
+        )}
+
+        {/* 3. All Products Section */}
+        {!loading && (
+          <ProductScrollSection
+            title="Trending Catalog"
+            subtitle="Explore our complete collection across all tech categories"
+            products={allProducts}
+            viewAllLink="/products"
+            categoriesMap={categoriesMap}
+          />
+        )}
+
+        {/* Trust & Transparency Feature Strip */}
+        <Grid container spacing={3} sx={{ mt: 4, mb: 2 }}>
+          <Grid item xs={12} md={4}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                borderRadius: '12px',
+                border: '1px solid #E5E7EB',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 2
+              }}
+            >
+              <VerifiedIcon sx={{ color: '#10B981', fontSize: 32 }} />
+              <Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  Verified Affiliate Links
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Every product connects directly to authentic retailers with genuine manufacturer pricing.
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                borderRadius: '12px',
+                border: '1px solid #E5E7EB',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 2
+              }}
+            >
+              <InstantIcon sx={{ color: '#111111', fontSize: 32 }} />
+              <Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  Frictionless Experience
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  No account registration, no cart bottlenecks. One click takes you directly to the checkout page.
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                borderRadius: '12px',
+                border: '1px solid #E5E7EB',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 2
+              }}
+            >
+              <ShippingIcon sx={{ color: '#6366F1', fontSize: 32 }} />
+              <Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  Curated Quality
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  We hand-test and filter specs so you spend less time researching and more time building.
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+
+      </Container>
+    </Box>
+  );
+}
