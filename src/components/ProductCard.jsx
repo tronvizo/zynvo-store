@@ -94,7 +94,7 @@ export default function ProductCard({ product, categoryName = '' }) {
       </Box>
 
       {/* Product Details */}
-      <CardContent sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+      <CardContent sx={{ p: { xs: 1.5, sm: 2 }, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         {categoryName && (
           <Typography
             variant="caption"
@@ -103,8 +103,8 @@ export default function ProductCard({ product, categoryName = '' }) {
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
-              fontSize: '0.72rem',
-              mb: 0.5
+              fontSize: { xs: '0.65rem', sm: '0.72rem' },
+              mb: 0.25
             }}
           >
             {categoryName}
@@ -115,47 +115,48 @@ export default function ProductCard({ product, categoryName = '' }) {
           variant="subtitle1"
           sx={{
             fontWeight: 700,
-            fontSize: '0.95rem',
+            fontSize: { xs: '0.85rem', sm: '0.95rem' },
             color: '#111111',
-            lineHeight: 1.35,
-            mb: 1,
+            lineHeight: 1.3,
+            mb: 0.75,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
-            minHeight: '2.7em'
+            minHeight: { xs: '2.6em', sm: '2.7em' }
           }}
         >
           {product.title}
         </Typography>
 
         {/* Rating */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
           <Rating
             value={Number(product.rating) || 0}
             precision={0.1}
             readOnly
             size="small"
-            sx={{ color: '#F59E0B' }}
+            sx={{ color: '#F59E0B', fontSize: { xs: '0.95rem', sm: '1.1rem' } }}
           />
-          <Typography variant="caption" sx={{ color: '#4B5563', fontWeight: 600, fontSize: '0.75rem' }}>
+          <Typography variant="caption" sx={{ color: '#4B5563', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
             ({Number(product.rating || 0).toFixed(1)})
           </Typography>
         </Box>
 
         {/* Price and Buy Now Button */}
-        <Box sx={{ mt: 'auto', pt: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ mt: 'auto', pt: 1, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 1 }}>
           <Box>
-            <Typography variant="caption" sx={{ color: '#6B7280', display: 'block', fontSize: '0.7rem' }}>
+            <Typography variant="caption" sx={{ color: '#6B7280', display: 'block', fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>
               Price
             </Typography>
             <Typography
               variant="h6"
               sx={{
                 fontWeight: 800,
-                fontSize: '1.1rem',
-                color: '#10B981' // Green accent
+                fontSize: { xs: '0.95rem', sm: '1.1rem' },
+                color: '#10B981',
+                lineHeight: 1.2
               }}
             >
               {formattedPrice}
@@ -167,16 +168,18 @@ export default function ProductCard({ product, categoryName = '' }) {
             variant="contained"
             color="primary"
             size="small"
-            endIcon={<BuyIcon sx={{ fontSize: 16 }} />}
+            endIcon={<BuyIcon sx={{ fontSize: 13 }} />}
             onClick={handleBuyNow}
             sx={{
               borderRadius: '6px',
-              px: 1.5,
-              py: 0.7,
-              fontSize: '0.8rem',
-              fontWeight: 600,
+              px: { xs: 1, sm: 1.5 },
+              py: { xs: 0.6, sm: 0.7 },
+              fontSize: { xs: '0.72rem', sm: '0.8rem' },
+              fontWeight: 700,
               boxShadow: 'none',
               backgroundColor: '#111111',
+              whiteSpace: 'nowrap',
+              width: { xs: '100%', sm: 'auto' },
               '&:hover': {
                 backgroundColor: '#262626'
               }

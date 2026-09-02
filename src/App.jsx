@@ -13,15 +13,17 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageCategories from './pages/admin/ManageCategories';
 import ManageProducts from './pages/admin/ManageProducts';
 import ProtectedRoute from './components/admin/ProtectedRoute';
+import MobileBottomNav from './components/layout/MobileBottomNav';
 
 function Layout({ children }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#FAFAFA' }}>
       <Header />
-      <Box component="main" sx={{ flexGrow: 1 }}>
+      <Box component="main" sx={{ flexGrow: 1, pb: { xs: 8, md: 0 } }}>
         {children}
       </Box>
       <Footer />
+      <MobileBottomNav />
     </Box>
   );
 }

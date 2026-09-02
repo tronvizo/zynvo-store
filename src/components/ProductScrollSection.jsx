@@ -101,10 +101,10 @@ export default function ProductScrollSection({
         className="hide-scrollbar"
         sx={{
           display: 'flex',
-          gap: 2.5,
+          gap: { xs: 1.5, sm: 2.5 },
           overflowX: 'auto',
           py: 1,
-          px: { xs: 0.5, sm: 0.5 },
+          px: { xs: 0.25, sm: 0.5 },
           scrollSnapType: 'x mandatory',
           WebkitOverflowScrolling: 'touch'
         }}
@@ -114,7 +114,7 @@ export default function ProductScrollSection({
             key={product.id}
             sx={{
               flex: '0 0 auto',
-              width: { xs: 230, sm: 260, md: 280 },
+              width: { xs: 185, sm: 240, md: 270 },
               scrollSnapAlign: 'start'
             }}
           >

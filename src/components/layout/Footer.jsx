@@ -18,9 +18,17 @@ export default function Footer() {
         <Grid container spacing={4} justifyContent="space-between">
           
           <Grid item xs={12} md={5}>
-            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', mb: 1.5 }}>
-              ZYNVO STORE
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+              <Box
+                component="img"
+                src="/logo.png"
+                alt="ZYNVO STORE Logo"
+                sx={{ width: 36, height: 36, objectFit: 'contain', borderRadius: '8px' }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                ZYNVO STORE
+              </Typography>
+            </Box>
             <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 460, lineHeight: 1.6, mb: 2 }}>
               A curated catalog of premier tech gadgets, audio gear, desk setups, and everyday essentials. Discover hand-picked products with verified specifications and direct partner access.
             </Typography>

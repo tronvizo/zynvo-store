@@ -12,8 +12,7 @@ import {
   List,
   ListItem,
   ListItemButton,
-  ListItemText,
-  Badge
+  ListItemText
 } from '@mui/material';
 import { 
   Search as SearchIcon, 
@@ -42,47 +41,70 @@ export default function Header() {
   const navLinks = [
     { label: 'Home', path: '/', icon: <HomeIcon fontSize="small" /> },
     { label: 'All Products', path: '/products', icon: <StoreIcon fontSize="small" /> },
-    { label: 'Admin', path: '/admin', icon: <AdminIcon fontSize="small" /> }
+    { label: 'Admin Panel', path: '/admin', icon: <AdminIcon fontSize="small" /> }
   ];
 
   return (
-    <AppBar position="sticky" elevation={0} sx={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E7EB' }}>
-      <Container maxWidth="xl">
-        <Toolbar disableGutters sx={{ minHeight: { xs: 64, md: 72 }, justifyContent: 'space-between', gap: 2 }}>
+    <AppBar position="sticky" elevation={0} sx={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E7EB', zIndex: 1100 }}>
+      <Container maxWidth="xl" sx={{ px: { xs: 1.5, sm: 2 } }}>
+        <Toolbar disableGutters sx={{ minHeight: { xs: 58, md: 70 }, justifyContent: 'space-between', gap: 1 }}>
           
-          {/* Mobile Menu Icon */}
-          <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center' }}>
+          {/* Mobile Menu Icon & Logo */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1.5 } }}>
             <IconButton 
               edge="start" 
               color="inherit" 
-              aria-label="menu" 
-              onClick={() => setMobileOpen(true)}
-              sx={{ color: '#111111' }}
+              aria-label="open mobile navigation menu" 
+              onClick={(e) => {
+                e.currentTarget.blur();
+                setMobileOpen(true);
+              }}
+              sx={{ display: { xs: 'flex', md: 'none' }, color: '#111111', p: 1 }}
             >
-              <MenuIcon />
+              <MenuIcon fontSize="medium" />
             </IconButton>
-          </Box>
 
-          {/* Brand Name Text Only (No logo image/icon per PRD §5.1) */}
-          <Typography
-            variant="h5"
-            component={Link}
-            to="/"
-            sx={{
-              fontWeight: 800,
-              letterSpacing: '0.08em',
-              color: '#111111',
-              textDecoration: 'none',
-              fontSize: { xs: '1.25rem', sm: '1.45rem' },
-              textTransform: 'uppercase',
-              userSelect: 'none',
-              '&:hover': {
-                opacity: 0.85
-              }
-            }}
-          >
-            ZYNVO STORE
-          </Typography>
+            {/* Brand Logo & Name */}
+            <Box
+              component={Link}
+              to="/"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.25,
+                textDecoration: 'none',
+                color: '#111111',
+                userSelect: 'none'
+              }}
+            >
+              <Box
+                component="img"
+                src="/logo.png"
+                alt="ZYNVO STORE Logo"
+                sx={{
+                  width: { xs: 34, sm: 38, md: 44 },
+                  height: { xs: 34, sm: 38, md: 44 },
+                  objectFit: 'contain',
+                  borderRadius: '8px',
+                  display: 'block'
+                }}
+              />
+              <Typography
+                variant="h6"
+                component="span"
+                sx={{
+                  fontWeight: 900,
+                  letterSpacing: { xs: '0.04em', sm: '0.07em' },
+                  color: '#111111',
+                  fontSize: { xs: '1.1rem', sm: '1.35rem', md: '1.45rem' },
+                  textTransform: 'uppercase',
+                  lineHeight: 1
+                }}
+              >
+                ZYNVO STORE
+              </Typography>
+            </Box>
+          </Box>
 
           {/* Desktop Search Bar */}
           <Box 
@@ -168,39 +190,57 @@ export default function Header() {
             </Button>
           </Box>
 
-          {/* Mobile Search Icon Button */}
-          <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 0.5 }}>
+          {/* Mobile Right Icons */}
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', gap: 0.5 }}>
             <IconButton 
+              aria-label="Search catalog"
               onClick={() => navigate('/products')}
-              sx={{ color: '#111111' }}
+              sx={{ color: '#111111', p: 1 }}
             >
-              <SearchIcon />
+              <SearchIcon fontSize="medium" />
             </IconButton>
             <IconButton 
+              aria-label="Admin panel"
               onClick={() => navigate('/admin')}
-              sx={{ color: '#111111' }}
+              sx={{ color: '#111111', p: 1 }}
             >
-              <AdminIcon />
+              <AdminIcon fontSize="medium" />
             </IconButton>
           </Box>
 
         </Toolbar>
       </Container>
 
-      {/* Mobile Navigation Drawer */}
+      {/* Mobile Navigation Drawer with aria-hidden fix */}
       <Drawer
         anchor="left"
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
+        ModalProps={{
+          keepMounted: true,
+          disableRestoreFocus: true
+        }}
         PaperProps={{
-          sx: { width: 280, p: 2, display: 'flex', flexDirection: 'column' }
+          sx: { width: 290, p: 2.5, display: 'flex', flexDirection: 'column' }
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '0.05em' }}>
-            ZYNVO STORE
-          </Typography>
-          <IconButton onClick={() => setMobileOpen(false)}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+            <Box
+              component="img"
+              src="/logo.png"
+              alt="Logo"
+              sx={{ width: 34, height: 34, objectFit: 'contain', borderRadius: '6px' }}
+            />
+            <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '0.04em', fontSize: '1.1rem' }}>
+              ZYNVO STORE
+            </Typography>
+          </Box>
+          <IconButton 
+            aria-label="Close navigation"
+            onClick={() => setMobileOpen(false)} 
+            size="small"
+          >
             <CloseIcon />
           </IconButton>
         </Box>
@@ -215,8 +255,8 @@ export default function Header() {
             backgroundColor: '#F3F4F6', 
             borderRadius: '8px', 
             px: 1.5, 
-            py: 0.75,
-            mb: 2
+            py: 0.8,
+            mb: 2.5
           }}
         >
           <SearchIcon sx={{ color: '#6B7280', mr: 1, fontSize: 20 }} />
@@ -228,7 +268,7 @@ export default function Header() {
           />
         </Box>
 
-        <List>
+        <List disablePadding>
           {navLinks.map((item) => (
             <ListItem key={item.label} disablePadding sx={{ mb: 1 }}>
               <ListItemButton 
@@ -238,13 +278,14 @@ export default function Header() {
                 sx={{ 
                   borderRadius: '8px',
                   backgroundColor: location.pathname === item.path ? '#F3F4F6' : 'transparent',
-                  fontWeight: location.pathname === item.path ? 700 : 500
+                  fontWeight: location.pathname === item.path ? 700 : 500,
+                  py: 1.2
                 }}
               >
                 <Box sx={{ mr: 2, display: 'flex', alignItems: 'center', color: '#111111' }}>
                   {item.icon}
                 </Box>
-                <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '0.95rem' }} />
+                <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '0.95rem', fontWeight: 600 }} />
               </ListItemButton>
             </ListItem>
           ))}

@@ -142,11 +142,11 @@ export default function ProductDetails() {
           border: '1px solid #E5E7EB',
           overflow: 'hidden',
           backgroundColor: '#FFFFFF',
-          p: { xs: 2.5, md: 5 },
-          mb: 8
+          p: { xs: 2, sm: 3, md: 5 },
+          mb: { xs: 4, md: 8 }
         }}
       >
-        <Grid container spacing={{ xs: 4, md: 6 }}>
+        <Grid container spacing={{ xs: 3, md: 6 }}>
           
           {/* Left Column: Responsive Hero Image */}
           <Grid item xs={12} md={6}>
@@ -160,8 +160,8 @@ export default function ProductDetails() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                minHeight: { xs: 320, sm: 440, md: 500 },
-                maxHeight: 560
+                minHeight: { xs: 260, sm: 380, md: 500 },
+                maxHeight: { xs: 340, sm: 460, md: 560 }
               }}
             >
               <Box
