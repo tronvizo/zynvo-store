@@ -159,15 +159,15 @@ export default function ProductFormModal({
             </FormControl>
 
             <TextField
-              label="Price ($ USD)"
+              label="Price (₹ INR)"
               type="number"
-              inputProps={{ min: 0, step: "0.01" }}
+              inputProps={{ min: 0, step: "1" }}
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               fullWidth
               required
               disabled={loading}
-              placeholder="e.g. 299.99"
+              placeholder="e.g. 14999"
             />
           </Box>
 

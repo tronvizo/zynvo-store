@@ -26,9 +26,10 @@ export default function ProductCard({ product, categoryName = '' }) {
     }
   };
 
-  const formattedPrice = new Intl.NumberFormat('en-US', {
+  const formattedPrice = new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'INR',
+    maximumFractionDigits: 0
   }).format(product.price || 0);
 
   return (

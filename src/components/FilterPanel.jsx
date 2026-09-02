@@ -28,7 +28,7 @@ export default function FilterPanel({
   onCategoryChange,
   priceRange,
   onPriceRangeChange,
-  maxAvailablePrice = 1000,
+  maxAvailablePrice = 100000,
   minRating,
   onMinRatingChange,
   sortBy,
@@ -163,16 +163,17 @@ export default function FilterPanel({
               Price Range
             </Typography>
             <Typography variant="caption" sx={{ fontWeight: 700, color: '#111111' }}>
-              ${priceRange[0]} - ${priceRange[1]}
+              ₹{Number(priceRange[0]).toLocaleString('en-IN')} - ₹{Number(priceRange[1]).toLocaleString('en-IN')}
             </Typography>
           </Box>
           <Slider
             value={priceRange}
             onChange={(e, val) => onPriceRangeChange(val)}
             valueLabelDisplay="auto"
+            valueLabelFormat={(val) => `₹${Number(val).toLocaleString('en-IN')}`}
             min={0}
             max={maxAvailablePrice}
-            step={10}
+            step={500}
             size="small"
             sx={{
               color: '#111111',

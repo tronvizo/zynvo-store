@@ -106,9 +106,10 @@ export default function ProductDetails() {
     );
   }
 
-  const formattedPrice = new Intl.NumberFormat('en-US', {
+  const formattedPrice = new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD'
+    currency: 'INR',
+    maximumFractionDigits: 0
   }).format(product.price || 0);
 
   const categoryName = categoriesMap[product.categoryId] || 'Gadgets';

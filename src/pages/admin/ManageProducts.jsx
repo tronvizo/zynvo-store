@@ -289,7 +289,7 @@ export default function ManageProducts() {
 
                   {/* Price */}
                   <TableCell sx={{ fontWeight: 700, color: '#10B981' }}>
-                    ${Number(prod.price).toFixed(2)}
+                    ₹{Number(prod.price || 0).toLocaleString('en-IN')}
                   </TableCell>
 
                   {/* Rating */}

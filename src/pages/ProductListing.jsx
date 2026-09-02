@@ -39,7 +39,7 @@ export default function ProductListing() {
   const [sortBy, setSortBy] = useState(
     sortParam === 'new' ? 'newest' : sortParam === 'popular' ? 'rating' : sortParam
   );
-  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [priceRange, setPriceRange] = useState([0, 100000]);
   const [minRating, setMinRating] = useState(0);
 
   // Data states
@@ -123,7 +123,7 @@ export default function ProductListing() {
     setSearch('');
     setSelectedCategory('all');
     setSortBy('newest');
-    setPriceRange([0, 1000]);
+    setPriceRange([0, 100000]);
     setMinRating(0);
     setSearchParams({});
   };
