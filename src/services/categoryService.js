@@ -4,11 +4,10 @@ import {
   getDoc,
   doc, 
   addDoc, 
-  updateDoc, 
+  setDoc,
   deleteDoc, 
   query, 
   where,
-  orderBy, 
   serverTimestamp 
 } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
@@ -19,30 +18,23 @@ const PRODUCTS_COLLECTION = "products";
 
 export const getCategories = async () => {
   try {
-    const q = query(collection(db, CATEGORIES_COLLECTION), orderBy("name", "asc"));
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      return snapshot.docs.map(d => ({
-        id: d.id,
-        ...d.data()
-      }));
-    }
-    // If empty in Firestore, fallback to demo categories
-    return DEMO_CATEGORIES;
+    const snapshot = await getDocs(collection(db, CATEGORIES_COLLECTION));
+    const firestoreCats = snapshot.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    const catMap = new Map(DEMO_CATEGORIES.map(c => [c.id, { ...c }]));
+    firestoreCats.forEach(fc => {
+      catMap.set(fc.id, { ...(catMap.get(fc.id) || {}), ...fc });
+    });
+
+    return Array.from(catMap.values())
+      .filter(c => !c.isDeleted)
+      .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   } catch (error) {
     console.warn("Firestore categories read fallback:", error.message);
-    try {
-      const snapshot = await getDocs(collection(db, CATEGORIES_COLLECTION));
-      if (!snapshot.empty) {
-        return snapshot.docs.map(d => ({
-          id: d.id,
-          ...d.data()
-        })).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-      }
-    } catch {
-      // Ignored: proceed to fallback
-    }
-    return DEMO_CATEGORIES;
+    return DEMO_CATEGORIES.filter(c => !c.isDeleted);
   }
 };
 
@@ -51,18 +43,22 @@ export const getCategoryById = async (id) => {
     const docRef = doc(db, CATEGORIES_COLLECTION, id);
     const snap = await getDoc(docRef);
     if (snap.exists()) {
-      return { id: snap.id, ...snap.data() };
+      const data = snap.data();
+      if (data.isDeleted) return null;
+      return { id: snap.id, ...data };
     }
   } catch (error) {
     console.warn("Firestore category by id fallback:", error.message);
   }
-  return DEMO_CATEGORIES.find(c => c.id === id) || null;
+  const fallback = DEMO_CATEGORIES.find(c => c.id === id);
+  return fallback && !fallback.isDeleted ? fallback : null;
 };
 
 export const addCategory = async ({ name, iconKey = "Category" }) => {
   const docRef = await addDoc(collection(db, CATEGORIES_COLLECTION), {
     name: name.trim(),
     iconKey: iconKey.trim() || "Category",
+    isDeleted: false,
     createdAt: serverTimestamp()
   });
   return docRef.id;
@@ -70,21 +66,31 @@ export const addCategory = async ({ name, iconKey = "Category" }) => {
 
 export const updateCategory = async (id, { name, iconKey }) => {
   const docRef = doc(db, CATEGORIES_COLLECTION, id);
-  const updateData = {};
-  if (name !== undefined) updateData.name = name.trim();
-  if (iconKey !== undefined) updateData.iconKey = iconKey.trim();
-  updateData.updatedAt = serverTimestamp();
+  const fallback = DEMO_CATEGORIES.find(c => c.id === id) || {};
+  const updateData = {
+    ...fallback,
+    ...(name !== undefined && { name: name.trim() }),
+    ...(iconKey !== undefined && { iconKey: iconKey.trim() }),
+    isDeleted: false,
+    updatedAt: serverTimestamp()
+  };
 
-  await updateDoc(docRef, updateData);
+  await setDoc(docRef, updateData, { merge: true });
 };
 
 export const deleteCategory = async (id) => {
   const q = query(collection(db, PRODUCTS_COLLECTION), where("categoryId", "==", id));
   const snap = await getDocs(q);
-  if (!snap.empty) {
-    throw new Error(`Cannot delete category: ${snap.size} products are currently assigned to it.`);
+  const activeProducts = snap.docs.filter(d => !d.data().isDeleted);
+  if (activeProducts.length > 0) {
+    throw new Error(`Cannot delete category: ${activeProducts.length} products are currently assigned to it.`);
   }
 
   const docRef = doc(db, CATEGORIES_COLLECTION, id);
-  await deleteDoc(docRef);
+  await setDoc(docRef, { isDeleted: true, updatedAt: serverTimestamp() }, { merge: true });
+  try {
+    await deleteDoc(docRef);
+  } catch (err) {
+    console.warn("Delete doc error:", err);
+  }
 };

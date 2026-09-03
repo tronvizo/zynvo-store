@@ -10,17 +10,16 @@ import {
   Chip 
 } from '@mui/material';
 import { OpenInNew as BuyIcon } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
 
 export default function ProductCard({ product, categoryName = '' }) {
-  const navigate = useNavigate();
-
   const handleCardClick = () => {
-    navigate(`/products/${product.id}`);
+    if (product.affiliateLink) {
+      window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const handleBuyNow = (e) => {
-    e.stopPropagation(); // prevent triggering card navigation
+    e.stopPropagation();
     if (product.affiliateLink) {
       window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
     }

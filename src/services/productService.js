@@ -4,12 +4,10 @@ import {
   getDoc,
   doc,
   addDoc,
-  updateDoc,
+  setDoc,
   deleteDoc,
   query,
   where,
-  orderBy,
-  limit,
   serverTimestamp
 } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
@@ -37,20 +35,27 @@ export const getProducts = async (filters = {}) => {
     }
 
     const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      products = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-    } else {
-      products = [...DEMO_PRODUCTS];
-      if (categoryId && categoryId !== "all") {
-        products = products.filter(p => p.categoryId === categoryId);
-      }
+    const firestoreProducts = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    // Start with demo products as baseline
+    let initialDemo = DEMO_PRODUCTS;
+    if (categoryId && categoryId !== "all") {
+      initialDemo = DEMO_PRODUCTS.filter(p => p.categoryId === categoryId);
     }
+
+    // Merge: Demo products as base, Firestore docs override or append
+    const productMap = new Map(initialDemo.map(p => [p.id, { ...p }]));
+    firestoreProducts.forEach(fp => {
+      productMap.set(fp.id, { ...(productMap.get(fp.id) || {}), ...fp });
+    });
+
+    products = Array.from(productMap.values()).filter(p => !p.isDeleted);
   } catch (error) {
     console.warn("Firestore products read fallback:", error.message);
-    products = [...DEMO_PRODUCTS];
+    products = [...DEMO_PRODUCTS].filter(p => !p.isDeleted);
     if (categoryId && categoryId !== "all") {
       products = products.filter(p => p.categoryId === categoryId);
     }
@@ -99,51 +104,16 @@ export const getProducts = async (filters = {}) => {
 };
 
 export const getNewProducts = async (limitCount = 10) => {
-  try {
-    const q = query(
-      collection(db, PRODUCTS_COLLECTION),
-      orderBy("createdAt", "desc"),
-      limit(limitCount)
-    );
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    }
-  } catch (error) {
-    console.warn("New products Firestore fallback:", error.message);
-  }
-  const all = await getProducts();
+  const all = await getProducts({ sortBy: "newest" });
   return all.slice(0, limitCount);
 };
 
 export const getPopularProducts = async (limitCount = 10) => {
-  try {
-    const q = query(
-      collection(db, PRODUCTS_COLLECTION),
-      orderBy("rating", "desc"),
-      limit(limitCount)
-    );
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    }
-  } catch (error) {
-    console.warn("Popular products Firestore fallback:", error.message);
-  }
   const all = await getProducts({ sortBy: "rating" });
-  return all.filter(p => p.isPopular || p.rating >= 4.7).slice(0, limitCount);
+  return all.filter(p => p.isPopular || (Number(p.rating) || 0) >= 4.7).slice(0, limitCount);
 };
 
 export const getAllProducts = async (limitCount = 10) => {
-  try {
-    const q = query(collection(db, PRODUCTS_COLLECTION), limit(limitCount));
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    }
-  } catch (error) {
-    console.warn("All products Firestore fallback:", error.message);
-  }
   const all = await getProducts();
   return all.slice(0, limitCount);
 };
@@ -153,12 +123,15 @@ export const getProductById = async (id) => {
     const docRef = doc(db, PRODUCTS_COLLECTION, id);
     const snap = await getDoc(docRef);
     if (snap.exists()) {
-      return { id: snap.id, ...snap.data() };
+      const data = snap.data();
+      if (data.isDeleted) return null;
+      return { id: snap.id, ...data };
     }
   } catch (error) {
     console.warn("Product by id Firestore fallback:", error.message);
   }
-  return DEMO_PRODUCTS.find(p => p.id === id) || null;
+  const fallback = DEMO_PRODUCTS.find(p => p.id === id);
+  return fallback && !fallback.isDeleted ? fallback : null;
 };
 
 export const addProduct = async (productData) => {
@@ -171,6 +144,7 @@ export const addProduct = async (productData) => {
     imageUrl: productData.imageUrl.trim(),
     affiliateLink: productData.affiliateLink.trim(),
     isPopular: Boolean(productData.isPopular),
+    isDeleted: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   };
@@ -181,17 +155,27 @@ export const addProduct = async (productData) => {
 
 export const updateProduct = async (id, productData) => {
   const docRef = doc(db, PRODUCTS_COLLECTION, id);
+  const fallback = DEMO_PRODUCTS.find(p => p.id === id) || {};
   const data = {
+    ...fallback,
     ...productData,
     price: Number(productData.price),
     rating: Number(productData.rating) || 0,
+    isDeleted: false,
     updatedAt: serverTimestamp()
   };
 
-  await updateDoc(docRef, data);
+  // setDoc with merge: true safely handles both new and existing documents without "No document to update" error
+  await setDoc(docRef, data, { merge: true });
 };
 
 export const deleteProduct = async (id) => {
   const docRef = doc(db, PRODUCTS_COLLECTION, id);
-  await deleteDoc(docRef);
+  // Mark as deleted so demo products and firestore products are permanently hidden
+  await setDoc(docRef, { isDeleted: true, updatedAt: serverTimestamp() }, { merge: true });
+  try {
+    await deleteDoc(docRef);
+  } catch (err) {
+    console.warn("Delete doc error:", err);
+  }
 };

@@ -3,17 +3,8 @@ import {
   Container,
   Box,
   Typography,
-  Button,
-  Grid,
-  Skeleton,
-  Paper
+  Skeleton
 } from '@mui/material';
-import {
-  Explore as ExploreIcon,
-  VerifiedUserOutlined as VerifiedIcon,
-  LocalShippingOutlined as ShippingIcon,
-  BoltOutlined as InstantIcon
-} from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import CategoryChips from '../components/CategoryChips';
 import ProductScrollSection from '../components/ProductScrollSection';
@@ -160,84 +151,6 @@ export default function Home() {
             categoriesMap={categoriesMap}
           />
         )}
-
-        {/* Trust & Transparency Feature Strip */}
-        <Grid container spacing={3} sx={{ mt: 4, mb: 2 }}>
-          <Grid item xs={12} md={4}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 3,
-                borderRadius: '12px',
-                border: '1px solid #E5E7EB',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 2
-              }}
-            >
-              <VerifiedIcon sx={{ color: '#10B981', fontSize: 32 }} />
-              <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
-                  Verified Affiliate Links
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Every product connects directly to authentic retailers with genuine manufacturer pricing.
-                </Typography>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 3,
-                borderRadius: '12px',
-                border: '1px solid #E5E7EB',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 2
-              }}
-            >
-              <InstantIcon sx={{ color: '#111111', fontSize: 32 }} />
-              <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
-                  Frictionless Experience
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  No account registration, no cart bottlenecks. One click takes you directly to the checkout page.
-                </Typography>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 3,
-                borderRadius: '12px',
-                border: '1px solid #E5E7EB',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 2
-              }}
-            >
-              <ShippingIcon sx={{ color: '#6366F1', fontSize: 32 }} />
-              <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
-                  Curated Quality
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  We hand-test and filter specs so you spend less time researching and more time building.
-                </Typography>
-              </Box>
-            </Paper>
-          </Grid>
-        </Grid>
 
       </Container>
     </Box>
