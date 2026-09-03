@@ -4,18 +4,18 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
   Button,
+  TextField,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
+  FormControlLabel,
+  Switch,
   Box,
   Typography,
   Alert,
-  Rating,
-  FormControlLabel,
-  Switch
+  Rating
 } from '@mui/material';
 
 export default function ProductFormModal({
@@ -30,6 +30,7 @@ export default function ProductFormModal({
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [rating, setRating] = useState(4.5);
+  const [reviewsCount, setReviewsCount] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [affiliateLink, setAffiliateLink] = useState('');
@@ -42,6 +43,7 @@ export default function ProductFormModal({
       setDescription(product.description || '');
       setPrice(product.price !== undefined ? String(product.price) : '');
       setRating(product.rating !== undefined ? Number(product.rating) : 4.5);
+      setReviewsCount(product.reviewsCount !== undefined ? String(product.reviewsCount) : '');
       setCategoryId(product.categoryId || (categories[0]?.id || ''));
       setImageUrl(product.imageUrl || '');
       setAffiliateLink(product.affiliateLink || '');
@@ -51,6 +53,7 @@ export default function ProductFormModal({
       setDescription('');
       setPrice('');
       setRating(4.5);
+      setReviewsCount('');
       setCategoryId(categories[0]?.id || '');
       setImageUrl('');
       setAffiliateLink('');
@@ -108,11 +111,15 @@ export default function ProductFormModal({
       return;
     }
 
+    const numericRating = parseFloat(rating);
+    const finalRating = isNaN(numericRating) ? 4.5 : Math.min(5, Math.max(0, numericRating));
+
     onSave({
       title: title.trim(),
       description: description.trim(),
       price: numericPrice,
-      rating: Number(rating) || 0,
+      rating: finalRating,
+      reviewsCount: reviewsCount.trim(),
       categoryId,
       imageUrl: imageUrl.trim(),
       affiliateLink: affiliateLink.trim(),
@@ -140,12 +147,25 @@ export default function ProductFormModal({
             placeholder="e.g. Sony WH-1000XM5 Wireless Headphones"
           />
 
+          {/* Description */}
+          <TextField
+            label="Description & Specifications"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            multiline
+            rows={4}
+            fullWidth
+            required
+            disabled={loading}
+            placeholder="Detailed features, specifications, and warranty information..."
+          />
+
           {/* Category & Price */}
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
             <FormControl fullWidth required disabled={loading}>
-              <InputLabel id="product-category-label">Category</InputLabel>
+              <InputLabel id="category-select-label">Category</InputLabel>
               <Select
-                labelId="product-category-label"
+                labelId="category-select-label"
                 value={categoryId}
                 label="Category"
                 onChange={(e) => setCategoryId(e.target.value)}
@@ -171,21 +191,53 @@ export default function ProductFormModal({
             />
           </Box>
 
-          {/* Rating & Is Popular */}
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 2, p: 1.5, backgroundColor: '#F9FAFB', borderRadius: '8px' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                Rating (0–5):
-              </Typography>
-              <Rating
-                value={rating}
-                precision={0.1}
-                onChange={(e, val) => setRating(val || 0)}
-                sx={{ color: '#F59E0B' }}
+          {/* Review Rating & Popularity Box */}
+          <Box sx={{ p: 2, backgroundColor: '#F9FAFB', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5, color: '#111111' }}>
+              Review Rating & Reviews Count
+            </Typography>
+
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
+              {/* Direct Numeric Rating Input */}
+              <Box>
+                <TextField
+                  label="Rating (0.0 to 5.0)"
+                  type="number"
+                  inputProps={{ min: 0, max: 5, step: "0.1" }}
+                  value={rating}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    setRating(isNaN(val) ? 0 : Math.min(5, Math.max(0, val)));
+                  }}
+                  fullWidth
+                  size="small"
+                  disabled={loading}
+                  helperText="Enter rating score from 0.0 to 5.0"
+                />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                  <Rating
+                    value={Number(rating) || 0}
+                    precision={0.1}
+                    onChange={(e, val) => setRating(val || 0)}
+                    sx={{ color: '#F59E0B' }}
+                  />
+                  <Typography variant="caption" sx={{ color: '#6B7280', fontWeight: 700 }}>
+                    {Number(rating || 0).toFixed(1)} ★
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Reviews Count */}
+              <TextField
+                label="Reviews Count (Optional)"
+                value={reviewsCount}
+                onChange={(e) => setReviewsCount(e.target.value)}
+                fullWidth
+                size="small"
+                disabled={loading}
+                placeholder="e.g. 142 or 2.4k"
+                helperText="Displayed next to star rating (e.g. (4.5 • 142 reviews))"
               />
-              <Typography variant="body2" sx={{ color: '#6B7280', fontWeight: 600 }}>
-                {rating.toFixed(1)}
-              </Typography>
             </Box>
 
             <FormControlLabel
@@ -196,7 +248,7 @@ export default function ProductFormModal({
                   color="primary"
                 />
               }
-              label={<Typography variant="body2" sx={{ fontWeight: 600 }}>Feature as "Most Popular"</Typography>}
+              label={<Typography variant="body2" sx={{ fontWeight: 600 }}>Feature as "Most Popular" on Homepage</Typography>}
             />
           </Box>
 
@@ -208,7 +260,7 @@ export default function ProductFormModal({
             fullWidth
             required
             disabled={loading}
-            placeholder="https://amazon.com/dp/... or https://partner.link/..."
+            placeholder="https://amazon.in/dp/... or https://partner.link/..."
             helperText="The destination URL shopper is redirected to when clicking 'Buy Now'."
           />
 
@@ -219,76 +271,58 @@ export default function ProductFormModal({
             </Typography>
 
             <TextField
-              label="Image URL"
+              label="Direct Image URL"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               fullWidth
-              size="small"
               required
               disabled={loading}
-              placeholder="https://images.unsplash.com/... or any product image link"
-              helperText="Paste direct URL of the product photo (from Amazon, manufacturer CDN, Unsplash, etc.)"
+              placeholder="https://images.unsplash.com/... or https://m.media-amazon.com/..."
+              helperText="Paste direct image link (Amazon, Unsplash, CDN)."
+              sx={{ mb: 2 }}
             />
 
-            {/* Live Image Preview */}
-            {imageUrl && (
-              <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2, p: 1.5, backgroundColor: '#F9FAFB', borderRadius: '8px' }}>
+            {imageUrl.trim() && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Box
                   component="img"
                   src={imageUrl}
-                  alt="Preview"
-                  sx={{
-                    width: 70,
-                    height: 70,
-                    objectFit: 'cover',
-                    borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
-                    backgroundColor: '#FFFFFF'
-                  }}
+                  alt="Image preview"
                   onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/70?text=Invalid';
+                    e.target.style.display = 'none';
+                  }}
+                  onLoad={(e) => {
+                    e.target.style.display = 'block';
+                  }}
+                  sx={{
+                    width: 90,
+                    height: 90,
+                    objectFit: 'contain',
+                    borderRadius: '8px',
+                    border: '1px solid #D1D5DB',
+                    backgroundColor: '#F9FAFB',
+                    p: 0.5
                   }}
                 />
-                <Box sx={{ overflow: 'hidden' }}>
-                  <Typography variant="caption" sx={{ color: '#10B981', fontWeight: 600, display: 'block' }}>
-                    Image link active (Preview above)
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: 420 }}>
-                    {imageUrl}
-                  </Typography>
-                </Box>
+                <Typography variant="caption" color="text.secondary">
+                  Live image preview.
+                </Typography>
               </Box>
             )}
           </Box>
-
-          {/* Description */}
-          <TextField
-            label="Product Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            fullWidth
-            required
-            multiline
-            rows={4}
-            disabled={loading}
-            placeholder="Detailed features, specifications, ergonomics, battery life, warranties, etc."
-          />
         </DialogContent>
 
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={onClose} disabled={loading} sx={{ color: '#4B5563' }}>
+          <Button onClick={onClose} disabled={loading} color="inherit">
             Cancel
           </Button>
           <Button
             type="submit"
             variant="contained"
             disabled={loading}
-            sx={{
-              backgroundColor: '#111111',
-              '&:hover': { backgroundColor: '#262626' }
-            }}
+            sx={{ backgroundColor: '#111111', '&:hover': { backgroundColor: '#262626' } }}
           >
-            {loading ? 'Saving Product...' : product ? 'Update Product' : 'Add Product'}
+            {loading ? 'Saving...' : 'Save Product'}
           </Button>
         </DialogActions>
       </form>

@@ -15,6 +15,14 @@ import { DEMO_PRODUCTS } from "./seedData";
 
 const PRODUCTS_COLLECTION = "products";
 
+const getDeletedProductIds = () => {
+  try {
+    return JSON.parse(localStorage.getItem('zynvo_deleted_products') || '[]');
+  } catch {
+    return [];
+  }
+};
+
 export const getProducts = async (filters = {}) => {
   const {
     categoryId,
@@ -26,6 +34,7 @@ export const getProducts = async (filters = {}) => {
   } = filters;
 
   let products = [];
+  const deletedIds = getDeletedProductIds();
 
   try {
     let q = collection(db, PRODUCTS_COLLECTION);
@@ -52,10 +61,10 @@ export const getProducts = async (filters = {}) => {
       productMap.set(fp.id, { ...(productMap.get(fp.id) || {}), ...fp });
     });
 
-    products = Array.from(productMap.values()).filter(p => !p.isDeleted);
+    products = Array.from(productMap.values()).filter(p => !p.isDeleted && !deletedIds.includes(p.id));
   } catch (error) {
     console.warn("Firestore products read fallback:", error.message);
-    products = [...DEMO_PRODUCTS].filter(p => !p.isDeleted);
+    products = [...DEMO_PRODUCTS].filter(p => !p.isDeleted && !deletedIds.includes(p.id));
     if (categoryId && categoryId !== "all") {
       products = products.filter(p => p.categoryId === categoryId);
     }
@@ -119,6 +128,9 @@ export const getAllProducts = async (limitCount = 10) => {
 };
 
 export const getProductById = async (id) => {
+  const deletedIds = getDeletedProductIds();
+  if (deletedIds.includes(id)) return null;
+
   try {
     const docRef = doc(db, PRODUCTS_COLLECTION, id);
     const snap = await getDoc(docRef);
@@ -140,6 +152,7 @@ export const addProduct = async (productData) => {
     description: productData.description.trim(),
     price: Number(productData.price),
     rating: Number(productData.rating) || 0,
+    reviewsCount: productData.reviewsCount ? productData.reviewsCount.trim() : '',
     categoryId: productData.categoryId,
     imageUrl: productData.imageUrl.trim(),
     affiliateLink: productData.affiliateLink.trim(),
@@ -161,21 +174,29 @@ export const updateProduct = async (id, productData) => {
     ...productData,
     price: Number(productData.price),
     rating: Number(productData.rating) || 0,
+    reviewsCount: productData.reviewsCount !== undefined ? productData.reviewsCount.trim() : (fallback.reviewsCount || ''),
     isDeleted: false,
     updatedAt: serverTimestamp()
   };
 
-  // setDoc with merge: true safely handles both new and existing documents without "No document to update" error
+  // setDoc with merge: true handles both demo and new documents
   await setDoc(docRef, data, { merge: true });
 };
 
 export const deleteProduct = async (id) => {
   const docRef = doc(db, PRODUCTS_COLLECTION, id);
-  // Mark as deleted so demo products and firestore products are permanently hidden
-  await setDoc(docRef, { isDeleted: true, updatedAt: serverTimestamp() }, { merge: true });
+
+  // Directly delete document in Firestore (matches "allow delete: if request.auth != null;")
+  await deleteDoc(docRef);
+
+  // Also record locally in deleted IDs list so demo items won't reappear
   try {
-    await deleteDoc(docRef);
+    const deleted = getDeletedProductIds();
+    if (!deleted.includes(id)) {
+      deleted.push(id);
+      localStorage.setItem('zynvo_deleted_products', JSON.stringify(deleted));
+    }
   } catch (err) {
-    console.warn("Delete doc error:", err);
+    console.warn("Delete local storage sync error:", err);
   }
 };

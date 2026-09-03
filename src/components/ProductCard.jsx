@@ -10,8 +10,11 @@ import {
   Chip 
 } from '@mui/material';
 import { OpenInNew as BuyIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProductCard({ product, categoryName = '' }) {
+  const navigate = useNavigate();
+
   const handleCardClick = () => {
     if (product.affiliateLink) {
       window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
@@ -23,6 +26,11 @@ export default function ProductCard({ product, categoryName = '' }) {
     if (product.affiliateLink) {
       window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
     }
+  };
+
+  const handleViewDetails = (e) => {
+    e.stopPropagation();
+    navigate(`/products/${product.id}`);
   };
 
   const formattedPrice = new Intl.NumberFormat('en-IN', {
@@ -129,7 +137,7 @@ export default function ProductCard({ product, categoryName = '' }) {
           {product.title}
         </Typography>
 
-        {/* Rating */}
+        {/* Rating & Reviews */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
           <Rating
             value={Number(product.rating) || 0}
@@ -139,7 +147,7 @@ export default function ProductCard({ product, categoryName = '' }) {
             sx={{ color: '#F59E0B', fontSize: { xs: '0.95rem', sm: '1.1rem' } }}
           />
           <Typography variant="caption" sx={{ color: '#4B5563', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
-            ({Number(product.rating || 0).toFixed(1)})
+            ({Number(product.rating || 0).toFixed(1)}{product.reviewsCount ? ` • ${product.reviewsCount}` : ''})
           </Typography>
         </Box>
 
@@ -187,6 +195,32 @@ export default function ProductCard({ product, categoryName = '' }) {
             Buy Now
           </Button>
         </Box>
+
+        {/* View Details Option (PRD & User Request) */}
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={handleViewDetails}
+          sx={{
+            mt: 1,
+            py: 0.5,
+            fontSize: '0.74rem',
+            fontWeight: 600,
+            textTransform: 'none',
+            color: '#374151',
+            borderColor: '#E5E7EB',
+            backgroundColor: '#F9FAFB',
+            borderRadius: '6px',
+            width: '100%',
+            '&:hover': {
+              backgroundColor: '#F3F4F6',
+              borderColor: '#111111',
+              color: '#111111'
+            }
+          }}
+        >
+          View Details →
+        </Button>
       </CardContent>
     </Card>
   );

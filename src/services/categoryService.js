@@ -87,10 +87,15 @@ export const deleteCategory = async (id) => {
   }
 
   const docRef = doc(db, CATEGORIES_COLLECTION, id);
-  await setDoc(docRef, { isDeleted: true, updatedAt: serverTimestamp() }, { merge: true });
+  await deleteDoc(docRef);
+
   try {
-    await deleteDoc(docRef);
+    const deleted = JSON.parse(localStorage.getItem('zynvo_deleted_categories') || '[]');
+    if (!deleted.includes(id)) {
+      deleted.push(id);
+      localStorage.setItem('zynvo_deleted_categories', JSON.stringify(deleted));
+    }
   } catch (err) {
-    console.warn("Delete doc error:", err);
+    console.warn("Delete category local storage error:", err);
   }
 };

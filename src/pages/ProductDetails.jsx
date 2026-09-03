@@ -235,10 +235,10 @@ export default function ProductDetails() {
                 sx={{ color: '#F59E0B' }}
               />
               <Typography variant="body2" sx={{ fontWeight: 700, color: '#111111' }}>
-                {Number(product.rating || 0).toFixed(1)}
+                {Number(product.rating || 0).toFixed(1)}{product.reviewsCount ? ` (${product.reviewsCount})` : ''}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                • Verified Affiliate Partner Rating
+                • Verified Partner Rating
               </Typography>
             </Box>
 
