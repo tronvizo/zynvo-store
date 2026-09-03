@@ -238,14 +238,14 @@ export default function ProductDetails() {
                 {Number(product.rating || 0).toFixed(1)}{product.reviewsCount ? ` (${product.reviewsCount})` : ''}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                • Verified Partner Rating
+                • Product Rating
               </Typography>
             </Box>
 
             {/* Formatted Price */}
             <Box sx={{ mb: 3.5, p: 2, backgroundColor: '#F9FAFB', borderRadius: '10px', display: 'flex', alignItems: 'baseline', gap: 1.5 }}>
               <Typography variant="caption" sx={{ color: '#6B7280', textTransform: 'uppercase', fontWeight: 600 }}>
-                Direct Partner Price:
+                PRODUCT PRICE:
               </Typography>
               <Typography
                 variant="h3"
@@ -301,7 +301,7 @@ export default function ProductDetails() {
                   }
                 }}
               >
-                Buy Now on Partner Site
+                Buy Now
               </Button>
 
               <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', color: '#6B7280', mt: 1.5 }}>
