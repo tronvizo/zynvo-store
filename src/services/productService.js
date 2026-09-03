@@ -147,6 +147,10 @@ export const getProductById = async (id) => {
 };
 
 export const addProduct = async (productData) => {
+  const cleanImages = Array.isArray(productData.images)
+    ? productData.images.map(s => s.trim()).filter(Boolean)
+    : (productData.imageUrl ? [productData.imageUrl.trim()] : []);
+
   const data = {
     title: productData.title.trim(),
     description: productData.description.trim(),
@@ -154,7 +158,8 @@ export const addProduct = async (productData) => {
     rating: Number(productData.rating) || 0,
     reviewsCount: productData.reviewsCount ? productData.reviewsCount.trim() : '',
     categoryId: productData.categoryId,
-    imageUrl: productData.imageUrl.trim(),
+    imageUrl: cleanImages[0] || (productData.imageUrl ? productData.imageUrl.trim() : ''),
+    images: cleanImages.length > 0 ? cleanImages : (productData.imageUrl ? [productData.imageUrl.trim()] : []),
     affiliateLink: productData.affiliateLink.trim(),
     isPopular: Boolean(productData.isPopular),
     isDeleted: false,
@@ -169,12 +174,19 @@ export const addProduct = async (productData) => {
 export const updateProduct = async (id, productData) => {
   const docRef = doc(db, PRODUCTS_COLLECTION, id);
   const fallback = DEMO_PRODUCTS.find(p => p.id === id) || {};
+
+  const cleanImages = Array.isArray(productData.images)
+    ? productData.images.map(s => s.trim()).filter(Boolean)
+    : (productData.imageUrl ? [productData.imageUrl.trim()] : (fallback.images || (fallback.imageUrl ? [fallback.imageUrl] : [])));
+
   const data = {
     ...fallback,
     ...productData,
     price: Number(productData.price),
     rating: Number(productData.rating) || 0,
     reviewsCount: productData.reviewsCount !== undefined ? productData.reviewsCount.trim() : (fallback.reviewsCount || ''),
+    imageUrl: cleanImages[0] || productData.imageUrl || fallback.imageUrl || '',
+    images: cleanImages,
     isDeleted: false,
     updatedAt: serverTimestamp()
   };

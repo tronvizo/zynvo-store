@@ -11,15 +11,17 @@ import {
   Link as MuiLink,
   CircularProgress,
   Paper,
-  Divider
+  Divider,
+  IconButton
 } from '@mui/material';
 import {
-  NavigateNext as NextIcon,
+  NavigateNext as NextBreadcrumbIcon,
   OpenInNew as ExternalIcon,
   VerifiedUserOutlined as VerifiedIcon,
-  LocalShippingOutlined as ShippingIcon,
   CheckCircle as CheckIcon,
-  ArrowBack as BackIcon
+  ArrowBack as BackIcon,
+  ChevronLeft as PrevIcon,
+  ChevronRight as NextImageArrow
 } from '@mui/icons-material';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProductById, getProducts } from '../services/productService';
@@ -35,11 +37,17 @@ export default function ProductDetails() {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  // Touch swipe support for mobile
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
 
   useEffect(() => {
     async function loadDetails() {
       setLoading(true);
       setError('');
+      setSelectedImageIndex(0);
       try {
         const prod = await getProductById(id);
         if (!prod) {
@@ -106,6 +114,40 @@ export default function ProductDetails() {
     );
   }
 
+  const imageList = (Array.isArray(product.images) && product.images.length > 0)
+    ? product.images
+    : (product.imageUrl ? [product.imageUrl] : []);
+
+  const handlePrevImage = (e) => {
+    e?.stopPropagation();
+    setSelectedImageIndex((prev) => (prev === 0 ? imageList.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = (e) => {
+    e?.stopPropagation();
+    setSelectedImageIndex((prev) => (prev === imageList.length - 1 ? 0 : prev + 1));
+  };
+
+  const minSwipeDistance = 45;
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    if (isLeftSwipe) {
+      handleNextImage();
+    } else if (isRightSwipe) {
+      handlePrevImage();
+    }
+  };
+
   const formattedPrice = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
@@ -117,7 +159,7 @@ export default function ProductDetails() {
   return (
     <Container maxWidth="xl" sx={{ py: 4, pb: 10 }}>
       {/* Breadcrumbs */}
-      <Breadcrumbs separator={<NextIcon sx={{ fontSize: 14 }} />} sx={{ mb: 3 }}>
+      <Breadcrumbs separator={<NextBreadcrumbIcon sx={{ fontSize: 14 }} />} sx={{ mb: 3 }}>
         <MuiLink component={Link} to="/" color="inherit" sx={{ fontSize: '0.875rem' }}>
           Home
         </MuiLink>
@@ -148,9 +190,12 @@ export default function ProductDetails() {
       >
         <Grid container spacing={{ xs: 3, md: 6 }}>
           
-          {/* Left Column: Responsive Hero Image */}
+          {/* Left Column: Responsive Interactive Multi-Image Gallery & Slider */}
           <Grid item xs={12} md={6}>
             <Box
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
               sx={{
                 width: '100%',
                 borderRadius: '12px',
@@ -161,13 +206,16 @@ export default function ProductDetails() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 minHeight: { xs: 260, sm: 380, md: 500 },
-                maxHeight: { xs: 340, sm: 460, md: 560 }
+                maxHeight: { xs: 340, sm: 460, md: 560 },
+                position: 'relative',
+                userSelect: 'none'
               }}
             >
               <Box
                 component="img"
-                src={product.imageUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80'}
-                alt={product.title}
+                key={selectedImageIndex}
+                src={imageList[selectedImageIndex] || product.imageUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80'}
+                alt={`${product.title} - Angle ${selectedImageIndex + 1}`}
                 sx={{
                   maxWidth: '100%',
                   maxHeight: '100%',
@@ -177,7 +225,115 @@ export default function ProductDetails() {
                   p: { xs: 1, md: 2 }
                 }}
               />
+
+              {/* Slider Controls (if multiple images) */}
+              {imageList.length > 1 && (
+                <>
+                  <IconButton
+                    size="small"
+                    onClick={handlePrevImage}
+                    sx={{
+                      position: 'absolute',
+                      left: 10,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                      color: '#111111',
+                      '&:hover': { backgroundColor: '#FFFFFF' }
+                    }}
+                    aria-label="Previous image"
+                  >
+                    <PrevIcon />
+                  </IconButton>
+
+                  <IconButton
+                    size="small"
+                    onClick={handleNextImage}
+                    sx={{
+                      position: 'absolute',
+                      right: 10,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                      color: '#111111',
+                      '&:hover': { backgroundColor: '#FFFFFF' }
+                    }}
+                    aria-label="Next image"
+                  >
+                    <NextImageArrow />
+                  </IconButton>
+
+                  {/* Image Counter Badge */}
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      bottom: 12,
+                      right: 12,
+                      backgroundColor: 'rgba(17, 17, 17, 0.8)',
+                      color: '#FFFFFF',
+                      borderRadius: '12px',
+                      px: 1.2,
+                      py: 0.3,
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.05em'
+                    }}
+                  >
+                    {selectedImageIndex + 1} / {imageList.length}
+                  </Box>
+                </>
+              )}
             </Box>
+
+            {/* Thumbnail Strip (if multiple images) */}
+            {imageList.length > 1 && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: 1.5,
+                  mt: 2,
+                  overflowX: 'auto',
+                  py: 0.5,
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
+                {imageList.map((img, idx) => (
+                  <Box
+                    key={idx}
+                    onClick={() => setSelectedImageIndex(idx)}
+                    sx={{
+                      width: { xs: 62, sm: 72 },
+                      height: { xs: 62, sm: 72 },
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                      cursor: 'pointer',
+                      border: selectedImageIndex === idx ? '2px solid #111111' : '1px solid #E5E7EB',
+                      backgroundColor: '#F9FAFB',
+                      p: 0.5,
+                      transition: 'all 0.2s',
+                      boxShadow: selectedImageIndex === idx ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
+                      '&:hover': {
+                        borderColor: '#111111'
+                      }
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={img}
+                      alt={`Thumbnail ${idx + 1}`}
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain'
+                      }}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Grid>
 
           {/* Right Column: Specifications & Exclusive Buy CTA */}
@@ -198,23 +354,23 @@ export default function ProductDetails() {
               />
               {product.isPopular && (
                 <Chip
-                  label="POPULAR"
+                  label="POPULAR PICK"
                   size="small"
                   sx={{
                     backgroundColor: '#111111',
                     color: '#FFFFFF',
                     fontWeight: 700,
-                    fontSize: '0.72rem',
+                    fontSize: '0.7rem',
+                    letterSpacing: '0.05em',
                     borderRadius: '6px'
                   }}
                 />
               )}
             </Box>
 
-            {/* H1 Title per PRD §5.3 */}
+            {/* Title */}
             <Typography
-              variant="h1"
-              component="h1"
+              variant="h4"
               sx={{
                 fontWeight: 800,
                 fontSize: { xs: '1.6rem', sm: '2.1rem', md: '2.4rem' },

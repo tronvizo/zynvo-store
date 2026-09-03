@@ -15,8 +15,13 @@ import {
   Box,
   Typography,
   Alert,
-  Rating
+  Rating,
+  IconButton
 } from '@mui/material';
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon
+} from '@mui/icons-material';
 
 export default function ProductFormModal({
   open,
@@ -32,7 +37,7 @@ export default function ProductFormModal({
   const [rating, setRating] = useState(4.5);
   const [reviewsCount, setReviewsCount] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [images, setImages] = useState(['']);
   const [affiliateLink, setAffiliateLink] = useState('');
   const [isPopular, setIsPopular] = useState(false);
   const [error, setError] = useState('');
@@ -45,7 +50,13 @@ export default function ProductFormModal({
       setRating(product.rating !== undefined ? Number(product.rating) : 4.5);
       setReviewsCount(product.reviewsCount !== undefined ? String(product.reviewsCount) : '');
       setCategoryId(product.categoryId || (categories[0]?.id || ''));
-      setImageUrl(product.imageUrl || '');
+      if (Array.isArray(product.images) && product.images.length > 0) {
+        setImages(product.images);
+      } else if (product.imageUrl) {
+        setImages([product.imageUrl]);
+      } else {
+        setImages(['']);
+      }
       setAffiliateLink(product.affiliateLink || '');
       setIsPopular(Boolean(product.isPopular));
     } else {
@@ -55,12 +66,30 @@ export default function ProductFormModal({
       setRating(4.5);
       setReviewsCount('');
       setCategoryId(categories[0]?.id || '');
-      setImageUrl('');
+      setImages(['']);
       setAffiliateLink('');
       setIsPopular(false);
     }
     setError('');
   }, [product, open, categories]);
+
+  const handleImageChange = (index, value) => {
+    const updated = [...images];
+    updated[index] = value;
+    setImages(updated);
+  };
+
+  const handleAddImage = () => {
+    setImages([...images, '']);
+  };
+
+  const handleRemoveImage = (index) => {
+    if (images.length === 1) {
+      setImages(['']);
+    } else {
+      setImages(images.filter((_, i) => i !== index));
+    }
+  };
 
   const validateUrl = (urlStr) => {
     try {
@@ -96,8 +125,9 @@ export default function ProductFormModal({
       return;
     }
 
-    if (!imageUrl.trim()) {
-      setError('Product image URL is required.');
+    const cleanImages = images.map(img => img.trim()).filter(Boolean);
+    if (cleanImages.length === 0) {
+      setError('At least one product image URL is required.');
       return;
     }
 
@@ -121,7 +151,8 @@ export default function ProductFormModal({
       rating: finalRating,
       reviewsCount: reviewsCount.trim(),
       categoryId,
-      imageUrl: imageUrl.trim(),
+      imageUrl: cleanImages[0],
+      images: cleanImages,
       affiliateLink: affiliateLink.trim(),
       isPopular
     });
@@ -236,7 +267,7 @@ export default function ProductFormModal({
                 size="small"
                 disabled={loading}
                 placeholder="e.g. 142 or 2.4k"
-                helperText="Displayed next to star rating (e.g. (4.5 • 142 reviews))"
+                helperText="Displayed next to star rating (e.g. (4.5 • 142))"
               />
             </Box>
 
@@ -264,51 +295,108 @@ export default function ProductFormModal({
             helperText="The destination URL shopper is redirected to when clicking 'Buy Now'."
           />
 
-          {/* Image URL with Live Preview */}
-          <Box sx={{ border: '1px solid #E5E7EB', borderRadius: '8px', p: 2 }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>
-              Product Image (Direct URL)
+          {/* Multiple Image URLs with Live Previews */}
+          <Box sx={{ border: '1px solid #E5E7EB', borderRadius: '8px', p: 2, backgroundColor: '#FFFFFF' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#111111' }}>
+                Product Images (Multiple URLs for Slide & Gallery)
+              </Typography>
+              <Button
+                size="small"
+                startIcon={<AddIcon />}
+                onClick={handleAddImage}
+                sx={{ textTransform: 'none', fontWeight: 600, fontSize: '0.8rem', color: '#111111' }}
+              >
+                Add Another Image
+              </Button>
+            </Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+              Image 1 is the main thumbnail. Add extra angles or photos so shoppers can slide through them on the details page.
             </Typography>
 
-            <TextField
-              label="Direct Image URL"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              fullWidth
-              required
-              disabled={loading}
-              placeholder="https://images.unsplash.com/... or https://m.media-amazon.com/..."
-              helperText="Paste direct image link (Amazon, Unsplash, CDN)."
-              sx={{ mb: 2 }}
-            />
-
-            {imageUrl.trim() && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {images.map((imgUrl, index) => (
                 <Box
-                  component="img"
-                  src={imageUrl}
-                  alt="Image preview"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                  }}
-                  onLoad={(e) => {
-                    e.target.style.display = 'block';
-                  }}
+                  key={index}
                   sx={{
-                    width: 90,
-                    height: 90,
-                    objectFit: 'contain',
-                    borderRadius: '8px',
-                    border: '1px solid #D1D5DB',
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    alignItems: { xs: 'stretch', sm: 'center' },
+                    gap: 1.5,
+                    p: 1.5,
                     backgroundColor: '#F9FAFB',
-                    p: 0.5
+                    borderRadius: '8px',
+                    border: '1px solid #E5E7EB'
                   }}
-                />
-                <Typography variant="caption" color="text.secondary">
-                  Live image preview.
-                </Typography>
-              </Box>
-            )}
+                >
+                  <TextField
+                    label={`Image ${index + 1}${index === 0 ? ' (Main Thumbnail)' : ''}`}
+                    value={imgUrl}
+                    onChange={(e) => handleImageChange(index, e.target.value)}
+                    fullWidth
+                    size="small"
+                    required={index === 0}
+                    disabled={loading}
+                    placeholder="https://images.unsplash.com/... or https://m.media-amazon.com/..."
+                  />
+
+                  {/* Thumbnail preview */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+                    {imgUrl.trim() ? (
+                      <Box
+                        component="img"
+                        src={imgUrl}
+                        alt={`Preview ${index + 1}`}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                        onLoad={(e) => {
+                          e.target.style.display = 'block';
+                        }}
+                        sx={{
+                          width: 44,
+                          height: 44,
+                          objectFit: 'contain',
+                          borderRadius: '6px',
+                          border: '1px solid #D1D5DB',
+                          backgroundColor: '#FFFFFF',
+                          p: 0.25
+                        }}
+                      />
+                    ) : (
+                      <Box
+                        sx={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: '6px',
+                          border: '1px dashed #D1D5DB',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: '#FFFFFF',
+                          fontSize: '0.65rem',
+                          color: '#9CA3AF'
+                        }}
+                      >
+                        Empty
+                      </Box>
+                    )}
+
+                    {images.length > 1 && (
+                      <IconButton
+                        size="small"
+                        onClick={() => handleRemoveImage(index)}
+                        disabled={loading}
+                        sx={{ color: '#EF4444' }}
+                        aria-label="Remove image"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                  </Box>
+                </Box>
+              ))}
+            </Box>
           </Box>
         </DialogContent>
 
