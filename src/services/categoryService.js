@@ -24,12 +24,26 @@ export const getCategories = async () => {
       ...d.data()
     }));
 
-    const catMap = new Map(DEMO_CATEGORIES.map(c => [c.id, { ...c }]));
-    firestoreCats.forEach(fc => {
-      catMap.set(fc.id, { ...(catMap.get(fc.id) || {}), ...fc });
+    // Deduplicate by lowercased category name to prevent any duplicate chips
+    const categoryNameMap = new Map();
+
+    // 1. Add default demo categories
+    DEMO_CATEGORIES.forEach(c => {
+      if (!c.isDeleted && c.name) {
+        categoryNameMap.set(c.name.toLowerCase().trim(), { ...c });
+      }
     });
 
-    return Array.from(catMap.values())
+    // 2. Merge or override with Firestore categories (Firestore docs take priority)
+    firestoreCats.forEach(fc => {
+      if (!fc.isDeleted && fc.name) {
+        const key = fc.name.toLowerCase().trim();
+        const existing = categoryNameMap.get(key) || {};
+        categoryNameMap.set(key, { ...existing, ...fc, id: fc.id });
+      }
+    });
+
+    return Array.from(categoryNameMap.values())
       .filter(c => !c.isDeleted)
       .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   } catch (error) {

@@ -16,6 +16,10 @@ export function useCategories() {
       const map = {};
       data.forEach(c => {
         map[c.id] = c.name;
+        if (c.name) {
+          map[c.name] = c.name;
+          map[c.name.toLowerCase().trim()] = c.name;
+        }
       });
       setCategoriesMap(map);
     } catch (err) {

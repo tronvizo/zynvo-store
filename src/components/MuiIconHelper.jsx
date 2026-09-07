@@ -14,10 +14,16 @@ import {
   Home,
   MenuBook,
   Smartphone,
+  Tablet,
   Tv,
   DirectionsCar,
   Kitchen,
-  MusicNote
+  MusicNote,
+  Mouse,
+  Keyboard,
+  Speaker,
+  Power,
+  Storage
 } from '@mui/icons-material';
 
 const ICON_MAP = {
@@ -35,10 +41,16 @@ const ICON_MAP = {
   Home,
   MenuBook,
   Smartphone,
+  Tablet,
   Tv,
   DirectionsCar,
   Kitchen,
-  MusicNote
+  MusicNote,
+  Mouse,
+  Keyboard,
+  Speaker,
+  Power,
+  Storage
 };
 
 export const AVAILABLE_ICON_KEYS = Object.keys(ICON_MAP);

@@ -11,7 +11,7 @@ import {
   serverTimestamp
 } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
-import { DEMO_PRODUCTS } from "./seedData";
+import { DEMO_PRODUCTS, DEMO_CATEGORIES } from "./seedData";
 
 const PRODUCTS_COLLECTION = "products";
 
@@ -37,37 +37,47 @@ export const getProducts = async (filters = {}) => {
   const deletedIds = getDeletedProductIds();
 
   try {
-    let q = collection(db, PRODUCTS_COLLECTION);
-    
-    if (categoryId && categoryId !== "all") {
-      q = query(q, where("categoryId", "==", categoryId));
-    }
-
+    const q = collection(db, PRODUCTS_COLLECTION);
     const snapshot = await getDocs(q);
     const firestoreProducts = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     }));
 
-    // Start with demo products as baseline
-    let initialDemo = DEMO_PRODUCTS;
-    if (categoryId && categoryId !== "all") {
-      initialDemo = DEMO_PRODUCTS.filter(p => p.categoryId === categoryId);
-    }
-
     // Merge: Demo products as base, Firestore docs override or append
-    const productMap = new Map(initialDemo.map(p => [p.id, { ...p }]));
+    const productMap = new Map(DEMO_PRODUCTS.map(p => [p.id, { ...p }]));
     firestoreProducts.forEach(fp => {
       productMap.set(fp.id, { ...(productMap.get(fp.id) || {}), ...fp });
     });
 
-    products = Array.from(productMap.values()).filter(p => !p.isDeleted && !deletedIds.includes(p.id));
+    let allItems = Array.from(productMap.values()).filter(p => !p.isDeleted && !deletedIds.includes(p.id));
+
+    // Category filter with name & ID support
+    if (categoryId && categoryId !== "all") {
+      const targetCat = DEMO_CATEGORIES.find(c => c.id === categoryId || c.name.toLowerCase() === categoryId.toLowerCase());
+      const targetName = targetCat ? targetCat.name.toLowerCase().trim() : categoryId.toLowerCase().trim();
+
+      allItems = allItems.filter(p => {
+        if (p.categoryId === categoryId) return true;
+        const pName = (p.categoryName || p.categoryId || '').toLowerCase().trim();
+        return pName === targetName;
+      });
+    }
+
+    products = allItems;
   } catch (error) {
     console.warn("Firestore products read fallback:", error.message);
-    products = [...DEMO_PRODUCTS].filter(p => !p.isDeleted && !deletedIds.includes(p.id));
+    let allItems = [...DEMO_PRODUCTS].filter(p => !p.isDeleted && !deletedIds.includes(p.id));
     if (categoryId && categoryId !== "all") {
-      products = products.filter(p => p.categoryId === categoryId);
+      const targetCat = DEMO_CATEGORIES.find(c => c.id === categoryId || c.name.toLowerCase() === categoryId.toLowerCase());
+      const targetName = targetCat ? targetCat.name.toLowerCase().trim() : categoryId.toLowerCase().trim();
+      allItems = allItems.filter(p => {
+        if (p.categoryId === categoryId) return true;
+        const pName = (p.categoryName || p.categoryId || '').toLowerCase().trim();
+        return pName === targetName;
+      });
     }
+    products = allItems;
   }
 
   // Client-side text search (title & description)
