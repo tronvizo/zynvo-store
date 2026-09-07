@@ -150,6 +150,8 @@ export default function ProductFormModal({
     const numericRating = parseFloat(rating);
     const finalRating = isNaN(numericRating) ? 4.5 : Math.min(5, Math.max(0, numericRating));
 
+    const selectedCat = categories.find(c => c.id === categoryId);
+
     onSave({
       title: title.trim(),
       description: description.trim(),
@@ -157,6 +159,7 @@ export default function ProductFormModal({
       rating: finalRating,
       reviewsCount: reviewsCount.trim(),
       categoryId,
+      categoryName: selectedCat ? selectedCat.name : '',
       imageUrl: cleanImages[0],
       images: cleanImages,
       affiliateLink: affiliateLink.trim(),

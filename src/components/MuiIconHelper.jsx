@@ -23,7 +23,12 @@ import {
   Keyboard,
   Speaker,
   Power,
-  Storage
+  Storage,
+  Spa,
+  LocalPharmacy,
+  MedicalServices,
+  ChildFriendly,
+  MoreHoriz
 } from '@mui/icons-material';
 
 const ICON_MAP = {
@@ -50,7 +55,12 @@ const ICON_MAP = {
   Keyboard,
   Speaker,
   Power,
-  Storage
+  Storage,
+  Spa,
+  LocalPharmacy,
+  MedicalServices,
+  ChildFriendly,
+  MoreHoriz
 };
 
 export const AVAILABLE_ICON_KEYS = Object.keys(ICON_MAP);

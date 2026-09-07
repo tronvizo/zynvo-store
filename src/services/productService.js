@@ -176,6 +176,7 @@ export const addProduct = async (productData) => {
     rating: Number(productData.rating) || 0,
     reviewsCount: productData.reviewsCount ? productData.reviewsCount.trim() : '',
     categoryId: productData.categoryId,
+    categoryName: productData.categoryName || '',
     imageUrl: cleanImages[0] || (productData.imageUrl ? productData.imageUrl.trim() : ''),
     images: cleanImages.length > 0 ? cleanImages : (productData.imageUrl ? [productData.imageUrl.trim()] : []),
     affiliateLink: productData.affiliateLink.trim(),

@@ -2,11 +2,21 @@ import { collection, addDoc, serverTimestamp, getDocs } from "firebase/firestore
 import { db } from "../firebase/firebaseConfig";
 
 export const DEMO_CATEGORIES = [
+  // User explicitly requested & high-demand affiliate categories:
+  { id: "cat-beauty-facewash", name: "Beauty, Skincare & Facewash", iconKey: "Spa" },
+  { id: "cat-hair-grooming", name: "Hair Care & Grooming", iconKey: "Spa" },
+  { id: "cat-medical", name: "Health, Medical & Wellness", iconKey: "LocalPharmacy" },
+  { id: "cat-sarees-ethnic", name: "Sarees & Ethnic Wear", iconKey: "Checkroom" },
+  { id: "cat-womens-fashion", name: "Women's Fashion & Handbags", iconKey: "ShoppingBag" },
+  { id: "cat-mens-fashion", name: "Men's Fashion & Footwear", iconKey: "Checkroom" },
+  { id: "cat-baby-kids", name: "Kids, Baby Care & Toys", iconKey: "ChildFriendly" },
+
+  // Electronics & Gadgets:
   { id: "cat-mobiles", name: "Mobiles & Tablets", iconKey: "Smartphone" },
-  { id: "cat-mobile-acc", name: "Mobile Accessories", iconKey: "Devices" },
-  { id: "cat-chargers", name: "Chargers & Cables", iconKey: "Power" },
+  { id: "cat-mobile-acc", name: "Mobile Accessories & Cases", iconKey: "Devices" },
+  { id: "cat-chargers", name: "Chargers, Cables & Power Banks", iconKey: "Power" },
   { id: "cat-audio", name: "Earbuds & Headphones", iconKey: "Headphones" },
-  { id: "cat-speakers", name: "Bluetooth Speakers", iconKey: "Speaker" },
+  { id: "cat-speakers", name: "Bluetooth Speakers & Soundbars", iconKey: "Speaker" },
   { id: "cat-wearables", name: "Smartwatches & Bands", iconKey: "Watch" },
   { id: "cat-laptops", name: "Laptops & Computers", iconKey: "Laptop" },
   { id: "cat-keyboards-mouse", name: "Mouse & Keyboards", iconKey: "Mouse" },
@@ -14,8 +24,16 @@ export const DEMO_CATEGORIES = [
   { id: "cat-gaming", name: "Gaming Gear & Consoles", iconKey: "SportsEsports" },
   { id: "cat-photo", name: "Cameras & Vlogging", iconKey: "CameraAlt" },
   { id: "cat-smarthome", name: "Smart Home & Lights", iconKey: "Lightbulb" },
+
+  // Home, Living & Essentials:
   { id: "cat-appliances", name: "Home & Kitchen Appliances", iconKey: "Kitchen" },
-  { id: "cat-tv", name: "TV & Entertainment", iconKey: "Tv" }
+  { id: "cat-homedecor", name: "Home Decor & Furnishing", iconKey: "Home" },
+  { id: "cat-fitness", name: "Fitness, Gym & Sports", iconKey: "FitnessCenter" },
+  { id: "cat-auto", name: "Car & Bike Accessories", iconKey: "DirectionsCar" },
+  { id: "cat-books", name: "Books & Stationery", iconKey: "MenuBook" },
+  { id: "cat-tv", name: "TV & Entertainment", iconKey: "Tv" },
+  { id: "cat-grocery", name: "Grocery & Daily Essentials", iconKey: "ShoppingBag" },
+  { id: "cat-other", name: "Other & Miscellaneous", iconKey: "MoreHoriz" }
 ];
 
 export const DEMO_PRODUCTS = [
