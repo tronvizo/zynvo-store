@@ -27,7 +27,9 @@ export const DEMO_PRODUCTS = [
     price: 14999,
     rating: 4.8,
     reviewsCount: "248 reviews",
-    isPopular: true,
+    isNewArrival: true,
+    isPopular: false,
+    isTrending: false,
     description: "Premium high-fidelity audio with spatial audio tracking, custom 40mm beryllium drivers, and 45 hours of ultra-long battery life with rapid USB-C charging.",
     imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
     images: [
@@ -46,7 +48,9 @@ export const DEMO_PRODUCTS = [
     price: 8499,
     rating: 4.7,
     reviewsCount: "189 reviews",
-    isPopular: true,
+    isNewArrival: true,
+    isPopular: false,
+    isTrending: false,
     description: "Ultra-thin aerospace titanium casing, vibrant AMOLED always-on display, continuous SpO2 and ECG cardiac monitoring, water-resistant up to 50 meters.",
     imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
     images: [
@@ -64,7 +68,9 @@ export const DEMO_PRODUCTS = [
     price: 6999,
     rating: 4.9,
     reviewsCount: "312 reviews",
-    isPopular: true,
+    isNewArrival: true,
+    isPopular: false,
+    isTrending: false,
     description: "CNC aluminum chassis, hot-swappable tactile silent switches, multi-device Bluetooth 5.2 connectivity with seamless Mac & Windows layout switching.",
     imageUrl: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80",
     images: [
@@ -82,7 +88,9 @@ export const DEMO_PRODUCTS = [
     price: 64999,
     rating: 4.9,
     reviewsCount: "94 reviews",
+    isNewArrival: false,
     isPopular: true,
+    isTrending: false,
     description: "Professional full-frame cinematic sensor delivering crisp 4K 120fps video, ultra-fast real-time eye autofocus, and dual native ISO architecture.",
     imageUrl: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80",
     images: [
@@ -100,7 +108,9 @@ export const DEMO_PRODUCTS = [
     price: 2999,
     rating: 4.6,
     reviewsCount: "420 reviews",
-    isPopular: false,
+    isNewArrival: false,
+    isPopular: true,
+    isTrending: false,
     description: "Sub-58 gram ultra-lightweight design, optical switches rated for 90 million clicks, flawless 30K DPI optical sensor, and PTFE zero-friction feet.",
     imageUrl: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=800&q=80",
     images: [
@@ -117,7 +127,9 @@ export const DEMO_PRODUCTS = [
     price: 2499,
     rating: 4.5,
     reviewsCount: "76 reviews",
+    isNewArrival: false,
     isPopular: false,
+    isTrending: true,
     description: "Circadian rhythm auto-tuning LED task lamp with ambient light sensors, dual wireless Qi charging dock base, and touch-slider brightness control.",
     imageUrl: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80",
     images: [
@@ -134,7 +146,9 @@ export const DEMO_PRODUCTS = [
     price: 18999,
     rating: 4.7,
     reviewsCount: "135 reviews",
+    isNewArrival: false,
     isPopular: false,
+    isTrending: true,
     description: "Bi-amplified studio nearfield speakers with woven composite woofers and silk-dome tweeters, delivering neutral uncolored sound for music producers.",
     imageUrl: "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=800&q=80",
     images: [
@@ -151,7 +165,9 @@ export const DEMO_PRODUCTS = [
     price: 4999,
     rating: 4.8,
     reviewsCount: "512 reviews",
+    isNewArrival: false,
     isPopular: true,
+    isTrending: false,
     description: "Weatherproof Cordura fabric with modular customizable dividers, dedicated 16-inch laptop compartment, and rapid side-access camera hatch.",
     imageUrl: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
     images: [
@@ -168,7 +184,9 @@ export const DEMO_PRODUCTS = [
     price: 28999,
     rating: 4.8,
     reviewsCount: "220 reviews",
-    isPopular: true,
+    isNewArrival: false,
+    isPopular: false,
+    isTrending: true,
     description: "WQHD 3440x1440 resolution with 165Hz refresh rate, 1ms response time, 99% sRGB color gamut, and 90W USB-C single cable laptop dock.",
     imageUrl: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=800&q=80",
     images: [
@@ -185,7 +203,9 @@ export const DEMO_PRODUCTS = [
     price: 3499,
     rating: 4.4,
     reviewsCount: "68 reviews",
+    isNewArrival: false,
     isPopular: false,
+    isTrending: true,
     description: "Medical-grade electrocardiogram sensor compatible with Garmin, Apple Watch, Zwift, and major fitness apps via ANT+ and Bluetooth 5.0.",
     imageUrl: "https://images.unsplash.com/photo-1510519138161-58474ebf828e?auto=format&fit=crop&w=800&q=80",
     images: [
@@ -238,7 +258,9 @@ export const seedInitialData = async (onProgress = () => {}) => {
         imageUrl: prod.imageUrl,
         images: prod.images || [prod.imageUrl],
         affiliateLink: prod.affiliateLink,
-        isPopular: prod.isPopular,
+        isNewArrival: Boolean(prod.isNewArrival),
+        isPopular: Boolean(prod.isPopular),
+        isTrending: Boolean(prod.isTrending),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });

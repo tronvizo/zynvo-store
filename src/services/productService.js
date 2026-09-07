@@ -123,13 +123,21 @@ export const getProducts = async (filters = {}) => {
 };
 
 export const getNewProducts = async (limitCount = 10) => {
-  const all = await getProducts({ sortBy: "newest" });
-  return all.slice(0, limitCount);
+  const all = await getProducts();
+  const filtered = all.filter(p => Boolean(p.isNewArrival));
+  return (filtered.length > 0 ? filtered : all.slice(0, 4)).slice(0, limitCount);
 };
 
 export const getPopularProducts = async (limitCount = 10) => {
-  const all = await getProducts({ sortBy: "rating" });
-  return all.filter(p => p.isPopular || (Number(p.rating) || 0) >= 4.7).slice(0, limitCount);
+  const all = await getProducts();
+  const filtered = all.filter(p => Boolean(p.isPopular));
+  return (filtered.length > 0 ? filtered : all.slice(4, 8)).slice(0, limitCount);
+};
+
+export const getTrendingProducts = async (limitCount = 10) => {
+  const all = await getProducts();
+  const filtered = all.filter(p => Boolean(p.isTrending));
+  return (filtered.length > 0 ? filtered : all.slice(8, 12)).slice(0, limitCount);
 };
 
 export const getAllProducts = async (limitCount = 10) => {
@@ -171,7 +179,9 @@ export const addProduct = async (productData) => {
     imageUrl: cleanImages[0] || (productData.imageUrl ? productData.imageUrl.trim() : ''),
     images: cleanImages.length > 0 ? cleanImages : (productData.imageUrl ? [productData.imageUrl.trim()] : []),
     affiliateLink: productData.affiliateLink.trim(),
+    isNewArrival: Boolean(productData.isNewArrival),
     isPopular: Boolean(productData.isPopular),
+    isTrending: Boolean(productData.isTrending !== undefined ? productData.isTrending : true),
     isDeleted: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
@@ -197,6 +207,9 @@ export const updateProduct = async (id, productData) => {
     reviewsCount: productData.reviewsCount !== undefined ? productData.reviewsCount.trim() : (fallback.reviewsCount || ''),
     imageUrl: cleanImages[0] || productData.imageUrl || fallback.imageUrl || '',
     images: cleanImages,
+    isNewArrival: productData.isNewArrival !== undefined ? Boolean(productData.isNewArrival) : Boolean(fallback.isNewArrival),
+    isPopular: productData.isPopular !== undefined ? Boolean(productData.isPopular) : Boolean(fallback.isPopular),
+    isTrending: productData.isTrending !== undefined ? Boolean(productData.isTrending) : Boolean(fallback.isTrending),
     isDeleted: false,
     updatedAt: serverTimestamp()
   };

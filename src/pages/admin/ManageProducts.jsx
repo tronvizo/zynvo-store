@@ -259,21 +259,50 @@ export default function ManageProducts() {
                         <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
                           {prod.title}
                         </Typography>
-                        {prod.isPopular && (
-                          <Chip
-                            label="POPULAR"
-                            size="small"
-                            sx={{
-                              height: 18,
-                              fontSize: '0.62rem',
-                              fontWeight: 700,
-                              backgroundColor: '#111111',
-                              color: '#FFFFFF',
-                              borderRadius: '4px',
-                              mt: 0.5
-                            }}
-                          />
-                        )}
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                          {prod.isNewArrival && (
+                            <Chip
+                              label="NEW ARRIVAL"
+                              size="small"
+                              sx={{
+                                height: 18,
+                                fontSize: '0.62rem',
+                                fontWeight: 700,
+                                backgroundColor: '#10B981',
+                                color: '#FFFFFF',
+                                borderRadius: '4px'
+                              }}
+                            />
+                          )}
+                          {prod.isPopular && (
+                            <Chip
+                              label="POPULAR"
+                              size="small"
+                              sx={{
+                                height: 18,
+                                fontSize: '0.62rem',
+                                fontWeight: 700,
+                                backgroundColor: '#111111',
+                                color: '#FFFFFF',
+                                borderRadius: '4px'
+                              }}
+                            />
+                          )}
+                          {prod.isTrending && (
+                            <Chip
+                              label="TRENDING"
+                              size="small"
+                              sx={{
+                                height: 18,
+                                fontSize: '0.62rem',
+                                fontWeight: 700,
+                                backgroundColor: '#6366F1',
+                                color: '#FFFFFF',
+                                borderRadius: '4px'
+                              }}
+                            />
+                          )}
+                        </Box>
                       </Box>
                     </Box>
                   </TableCell>

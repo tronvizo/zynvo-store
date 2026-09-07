@@ -39,7 +39,9 @@ export default function ProductFormModal({
   const [categoryId, setCategoryId] = useState('');
   const [images, setImages] = useState(['']);
   const [affiliateLink, setAffiliateLink] = useState('');
+  const [isNewArrival, setIsNewArrival] = useState(false);
   const [isPopular, setIsPopular] = useState(false);
+  const [isTrending, setIsTrending] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -58,7 +60,9 @@ export default function ProductFormModal({
         setImages(['']);
       }
       setAffiliateLink(product.affiliateLink || '');
+      setIsNewArrival(Boolean(product.isNewArrival));
       setIsPopular(Boolean(product.isPopular));
+      setIsTrending(product.isTrending !== undefined ? Boolean(product.isTrending) : true);
     } else {
       setTitle('');
       setDescription('');
@@ -68,7 +72,9 @@ export default function ProductFormModal({
       setCategoryId(categories[0]?.id || '');
       setImages(['']);
       setAffiliateLink('');
+      setIsNewArrival(false);
       setIsPopular(false);
+      setIsTrending(true);
     }
     setError('');
   }, [product, open, categories]);
@@ -154,7 +160,9 @@ export default function ProductFormModal({
       imageUrl: cleanImages[0],
       images: cleanImages,
       affiliateLink: affiliateLink.trim(),
-      isPopular
+      isNewArrival,
+      isPopular,
+      isTrending
     });
   };
 
@@ -271,16 +279,77 @@ export default function ProductFormModal({
               />
             </Box>
 
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={isPopular}
-                  onChange={(e) => setIsPopular(e.target.checked)}
-                  color="primary"
+            {/* Homepage Section Placement Options */}
+            <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid #E5E7EB' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5, color: '#111111' }}>
+                Homepage Section Placement
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
+                Select which section(s) on the homepage this product will appear in:
+              </Typography>
+
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isNewArrival}
+                      onChange={(e) => setIsNewArrival(e.target.checked)}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        Show in "New Arrivals"
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Displays in the New Arrivals scroll section on homepage
+                      </Typography>
+                    </Box>
+                  }
                 />
-              }
-              label={<Typography variant="body2" sx={{ fontWeight: 600 }}>Feature as "Most Popular" on Homepage</Typography>}
-            />
+
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isPopular}
+                      onChange={(e) => setIsPopular(e.target.checked)}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        Show in "Most Popular"
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Displays in the Most Popular scroll section on homepage
+                      </Typography>
+                    </Box>
+                  }
+                />
+
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isTrending}
+                      onChange={(e) => setIsTrending(e.target.checked)}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        Show in "Trending Catalog"
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Displays in the Trending Catalog scroll section on homepage
+                      </Typography>
+                    </Box>
+                  }
+                />
+              </Box>
+            </Box>
           </Box>
 
           {/* Affiliate Link */}

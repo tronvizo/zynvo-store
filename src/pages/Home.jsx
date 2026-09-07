@@ -3,23 +3,17 @@ import {
   Container,
   Box,
   Typography,
-  Grid,
   Skeleton,
   Paper,
-  Button,
-  Chip
+  Button
 } from '@mui/material';
 import {
-  ArrowForward as ArrowIcon,
   ShoppingBagOutlined as BagIcon,
-  RestartAlt as ResetIcon,
-  LocalFireDepartment as HotIcon,
-  FiberNew as NewIcon,
-  Apps as AllIcon
+  RestartAlt as ResetIcon
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import CategoryChips from '../components/CategoryChips';
-import ProductCard from '../components/ProductCard';
+import ProductScrollSection from '../components/ProductScrollSection';
 import { useCategories } from '../hooks/useCategories';
 import { getProducts } from '../services/productService';
 
@@ -28,7 +22,6 @@ export default function Home() {
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [filterType, setFilterType] = useState('all'); // 'all' | 'popular' | 'newest'
 
   useEffect(() => {
     async function loadHomeProducts() {
@@ -46,54 +39,52 @@ export default function Home() {
     loadHomeProducts();
   }, []);
 
-  // Filter products by selected category and filter tab without any duplicates
-  const displayedProducts = useMemo(() => {
-    let result = [...allProducts];
-
-    // 1. Filter by category
-    if (selectedCategory && selectedCategory !== 'all') {
-      const targetCat = categories.find(c => c.id === selectedCategory);
-      const targetName = targetCat?.name?.toLowerCase().trim();
-
-      result = result.filter(p => {
-        if (p.categoryId === selectedCategory) return true;
-        if (targetName) {
-          const prodCatName = (categoriesMap[p.categoryId] || p.categoryName || p.categoryId || '').toLowerCase().trim();
-          return prodCatName === targetName;
-        }
-        return false;
-      });
+  // Filter products by selected category
+  const categoryFilteredProducts = useMemo(() => {
+    if (!selectedCategory || selectedCategory === 'all') {
+      return allProducts;
     }
+    const targetCat = categories.find(c => c.id === selectedCategory);
+    const targetName = targetCat?.name?.toLowerCase().trim();
 
-    // 2. Filter by type (Popular or Newest)
-    if (filterType === 'popular') {
-      result = result.filter(p => p.isPopular || (Number(p.rating) || 0) >= 4.7);
-      result.sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
-    } else if (filterType === 'newest') {
-      result.sort((a, b) => {
-        const dateA = a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (new Date(a.createdAt || 0)).getTime();
-        const dateB = b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (new Date(b.createdAt || 0)).getTime();
-        return dateB - dateA;
-      });
-    }
+    return allProducts.filter(p => {
+      if (p.categoryId === selectedCategory) return true;
+      if (targetName) {
+        const prodCatName = (categoriesMap[p.categoryId] || p.categoryName || p.categoryId || '').toLowerCase().trim();
+        return prodCatName === targetName;
+      }
+      return false;
+    });
+  }, [allProducts, selectedCategory, categories, categoriesMap]);
 
-    return result;
-  }, [allProducts, selectedCategory, filterType, categories, categoriesMap]);
+  // Section 1: New Arrivals (admin selected isNewArrival)
+  const newArrivals = useMemo(() => {
+    return categoryFilteredProducts.filter(p => Boolean(p.isNewArrival));
+  }, [categoryFilteredProducts]);
 
-  // Selected category object
+  // Section 2: Most Popular (admin selected isPopular)
+  const popularProducts = useMemo(() => {
+    return categoryFilteredProducts.filter(p => Boolean(p.isPopular));
+  }, [categoryFilteredProducts]);
+
+  // Section 3: Trending Catalog (admin selected isTrending, or fallback if not categorized in others)
+  const trendingProducts = useMemo(() => {
+    return categoryFilteredProducts.filter(p => Boolean(p.isTrending) || (!p.isNewArrival && !p.isPopular));
+  }, [categoryFilteredProducts]);
+
+  const hasAnyProductsInSections = newArrivals.length > 0 || popularProducts.length > 0 || trendingProducts.length > 0;
+
   const activeCategoryObj = useMemo(() => {
     if (!selectedCategory || selectedCategory === 'all') return null;
     return categories.find(c => c.id === selectedCategory);
   }, [selectedCategory, categories]);
 
-  const activeCategoryTitle = activeCategoryObj ? activeCategoryObj.name : 'Curated Tech Showcase';
-
   return (
     <Box sx={{ pb: 8, pt: 3 }}>
       <Container maxWidth="xl">
         
-        {/* Category Chips Navigation Bar */}
-        <Box sx={{ mb: 4 }}>
+        {/* Category Chips Bar */}
+        <Box sx={{ mb: 5 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
             <Typography
               variant="subtitle2"
@@ -140,140 +131,23 @@ export default function Home() {
           )}
         </Box>
 
-        {/* Section Header with Sort Tabs */}
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
-            alignItems: { xs: 'flex-start', sm: 'center' },
-            justifyContent: 'space-between',
-            gap: 2,
-            mb: 3,
-            pt: 1,
-            borderTop: '1px solid #F3F4F6'
-          }}
-        >
-          {/* Title & Count */}
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 800,
-                  fontSize: { xs: '1.25rem', sm: '1.5rem' },
-                  color: '#111111',
-                  letterSpacing: '-0.02em'
-                }}
-              >
-                {activeCategoryTitle}
-              </Typography>
-              {!loading && (
-                <Chip
-                  label={`${displayedProducts.length} ${displayedProducts.length === 1 ? 'Item' : 'Items'}`}
-                  size="small"
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: '0.72rem',
-                    backgroundColor: '#F3F4F6',
-                    color: '#374151'
-                  }}
-                />
-              )}
-            </Box>
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
-              {selectedCategory === 'all'
-                ? 'Handpicked gadgets & verified tech essentials with direct partner checkout'
-                : `Showing verified products available in ${activeCategoryTitle}`}
-            </Typography>
-          </Box>
-
-          {/* Quick Filter Tabs: All, Popular, Newest */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-            <Chip
-              icon={<AllIcon sx={{ fontSize: 16 }} />}
-              label="All"
-              clickable
-              onClick={() => setFilterType('all')}
-              sx={{
-                fontWeight: 600,
-                fontSize: '0.78rem',
-                backgroundColor: filterType === 'all' ? '#111111' : '#F9FAFB',
-                color: filterType === 'all' ? '#FFFFFF' : '#4B5563',
-                border: '1px solid',
-                borderColor: filterType === 'all' ? '#111111' : '#E5E7EB',
-                '&:hover': {
-                  backgroundColor: filterType === 'all' ? '#262626' : '#F3F4F6'
-                }
-              }}
-            />
-            <Chip
-              icon={<HotIcon sx={{ fontSize: 16, color: filterType === 'popular' ? '#FFFFFF !important' : '#EF4444 !important' }} />}
-              label="Most Popular"
-              clickable
-              onClick={() => setFilterType('popular')}
-              sx={{
-                fontWeight: 600,
-                fontSize: '0.78rem',
-                backgroundColor: filterType === 'popular' ? '#111111' : '#F9FAFB',
-                color: filterType === 'popular' ? '#FFFFFF' : '#4B5563',
-                border: '1px solid',
-                borderColor: filterType === 'popular' ? '#111111' : '#E5E7EB',
-                '&:hover': {
-                  backgroundColor: filterType === 'popular' ? '#262626' : '#F3F4F6'
-                }
-              }}
-            />
-            <Chip
-              icon={<NewIcon sx={{ fontSize: 16, color: filterType === 'newest' ? '#FFFFFF !important' : '#10B981 !important' }} />}
-              label="Newest"
-              clickable
-              onClick={() => setFilterType('newest')}
-              sx={{
-                fontWeight: 600,
-                fontSize: '0.78rem',
-                backgroundColor: filterType === 'newest' ? '#111111' : '#F9FAFB',
-                color: filterType === 'newest' ? '#FFFFFF' : '#4B5563',
-                border: '1px solid',
-                borderColor: filterType === 'newest' ? '#111111' : '#E5E7EB',
-                '&:hover': {
-                  backgroundColor: filterType === 'newest' ? '#262626' : '#F3F4F6'
-                }
-              }}
-            />
-
-            <Button
-              component={Link}
-              to={selectedCategory === 'all' ? '/products' : `/products?category=${selectedCategory}`}
-              endIcon={<ArrowIcon sx={{ fontSize: 16 }} />}
-              sx={{
-                textTransform: 'none',
-                fontWeight: 700,
-                fontSize: '0.8rem',
-                color: '#111111',
-                ml: { xs: 0, sm: 1 },
-                '&:hover': {
-                  backgroundColor: 'transparent',
-                  textDecoration: 'underline'
-                }
-              }}
-            >
-              Catalog View
-            </Button>
-          </Box>
-        </Box>
-
         {/* Loading Skeletons */}
         {loading && (
-          <Grid container spacing={{ xs: 1.5, sm: 2.5, md: 3 }} sx={{ my: 1 }}>
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <Grid item xs={6} sm={4} md={3} key={i}>
-                <Skeleton variant="rounded" height={360} sx={{ borderRadius: '12px' }} />
-              </Grid>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, my: 4 }}>
+            {[1, 2].map((s) => (
+              <Box key={s}>
+                <Skeleton width={200} height={32} sx={{ mb: 2 }} />
+                <Box sx={{ display: 'flex', gap: 2.5, overflowX: 'hidden' }}>
+                  {[1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} variant="rounded" width={260} height={340} sx={{ borderRadius: '12px' }} />
+                  ))}
+                </Box>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         )}
 
-        {/* Empty Catalog Notice (No products exist at all) */}
+        {/* Empty Catalog Notice (No products at all) */}
         {!loading && allProducts.length === 0 && (
           <Paper
             elevation={0}
@@ -287,11 +161,11 @@ export default function Home() {
             }}
           >
             <BagIcon sx={{ fontSize: 48, color: '#9CA3AF', mb: 1.5 }} />
-            <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+            <Typography variant="h5" sx={{ fontWeight: 700, mb: 1.5 }}>
               Catalog is currently empty
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 460, mx: 'auto', mb: 3 }}>
-              No products have been added to ZYNVO STORE yet. You can sign in to the Admin Panel to add new products or categories.
+              No products have been added to ZYNVO STORE yet. You can sign in to the Admin Panel to populate or add items.
             </Typography>
             <Button
               component={Link}
@@ -305,7 +179,7 @@ export default function Home() {
         )}
 
         {/* No Products in this Category */}
-        {!loading && allProducts.length > 0 && displayedProducts.length === 0 && (
+        {!loading && allProducts.length > 0 && !hasAnyProductsInSections && (
           <Paper
             elevation={0}
             sx={{
@@ -318,17 +192,14 @@ export default function Home() {
             }}
           >
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-              No products found in "{activeCategoryTitle}"
+              No products found in "{activeCategoryObj ? activeCategoryObj.name : 'Selected Category'}"
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 440, mx: 'auto', mb: 3 }}>
-              There are no products listed under this category yet. Try selecting another category or view all items.
+              There are no products assigned to this category yet. Try selecting another category or view all items.
             </Typography>
             <Button
               variant="contained"
-              onClick={() => {
-                setSelectedCategory('all');
-                setFilterType('all');
-              }}
+              onClick={() => setSelectedCategory('all')}
               sx={{
                 backgroundColor: '#111111',
                 borderRadius: '8px',
@@ -342,18 +213,37 @@ export default function Home() {
           </Paper>
         )}
 
-        {/* Unified, Single Product Grid (Every product appears ONCE) */}
-        {!loading && displayedProducts.length > 0 && (
-          <Grid container spacing={{ xs: 1.5, sm: 2.5, md: 3 }}>
-            {displayedProducts.map((p) => (
-              <Grid item xs={6} sm={4} md={3} key={p.id}>
-                <ProductCard
-                  product={p}
-                  categoryName={categoriesMap[p.categoryId] || p.categoryName || ''}
-                />
-              </Grid>
-            ))}
-          </Grid>
+        {/* 1. New Arrivals Section (Admin controlled: isNewArrival) */}
+        {!loading && newArrivals.length > 0 && (
+          <ProductScrollSection
+            title="New Arrivals"
+            subtitle="Latest handpicked gadgets and peripherals added to the store"
+            products={newArrivals}
+            viewAllLink="/products?sort=new"
+            categoriesMap={categoriesMap}
+          />
+        )}
+
+        {/* 2. Most Popular Section (Admin controlled: isPopular) */}
+        {!loading && popularProducts.length > 0 && (
+          <ProductScrollSection
+            title="Most Popular"
+            subtitle="Top-rated tech and community favorite picks"
+            products={popularProducts}
+            viewAllLink="/products?sort=popular"
+            categoriesMap={categoriesMap}
+          />
+        )}
+
+        {/* 3. Trending Catalog Section (Admin controlled: isTrending) */}
+        {!loading && trendingProducts.length > 0 && (
+          <ProductScrollSection
+            title="Trending Catalog"
+            subtitle="Explore our complete collection across all tech categories"
+            products={trendingProducts}
+            viewAllLink="/products"
+            categoriesMap={categoriesMap}
+          />
         )}
 
       </Container>
