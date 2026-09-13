@@ -58,25 +58,66 @@ export default function ProductCard({ product, categoryName = '' }) {
         }
       }}
     >
-      {/* Popular Badge */}
-      {product.isPopular && (
-        <Chip
-          label="POPULAR"
-          size="small"
-          sx={{
-            position: 'absolute',
-            top: 10,
-            left: 10,
-            zIndex: 2,
-            backgroundColor: '#111111',
-            color: '#FFFFFF',
-            fontWeight: 700,
-            fontSize: '0.68rem',
-            letterSpacing: '0.05em',
-            borderRadius: '6px'
-          }}
-        />
-      )}
+      {/* Product Highlight Badges on Top of Card */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 10,
+          left: 10,
+          zIndex: 2,
+          display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: 0.75,
+          maxWidth: '85%'
+        }}
+      >
+        {product.isNewArrival && (
+          <Chip
+            label="NEW ARRIVAL"
+            size="small"
+            sx={{
+              backgroundColor: '#111111',
+              color: '#FFFFFF',
+              fontWeight: 700,
+              fontSize: '0.68rem',
+              letterSpacing: '0.05em',
+              borderRadius: '6px',
+              height: '22px'
+            }}
+          />
+        )}
+        {product.isPopular && (
+          <Chip
+            label="POPULAR"
+            size="small"
+            sx={{
+              backgroundColor: '#111111',
+              color: '#FFFFFF',
+              fontWeight: 700,
+              fontSize: '0.68rem',
+              letterSpacing: '0.05em',
+              borderRadius: '6px',
+              height: '22px'
+            }}
+          />
+        )}
+        {product.isTrending && (
+          <Chip
+            label="TRENDING"
+            size="small"
+            sx={{
+              backgroundColor: '#111111',
+              color: '#FFFFFF',
+              fontWeight: 700,
+              fontSize: '0.68rem',
+              letterSpacing: '0.05em',
+              borderRadius: '6px',
+              height: '22px'
+            }}
+          />
+        )}
+      </Box>
 
       {/* Product Image */}
       <Box sx={{ position: 'relative', pt: '75%', backgroundColor: '#F9FAFB', overflow: 'hidden' }}>

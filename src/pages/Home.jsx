@@ -5,7 +5,8 @@ import {
   Typography,
   Skeleton,
   Paper,
-  Button
+  Button,
+  Grid
 } from '@mui/material';
 import {
   ShoppingBagOutlined as BagIcon,
@@ -13,7 +14,7 @@ import {
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import CategoryChips from '../components/CategoryChips';
-import ProductScrollSection from '../components/ProductScrollSection';
+import ProductCard from '../components/ProductCard';
 import { useCategories } from '../hooks/useCategories';
 import { getProducts } from '../services/productService';
 
@@ -57,23 +58,6 @@ export default function Home() {
     });
   }, [allProducts, selectedCategory, categories, categoriesMap]);
 
-  // Section 1: New Arrivals (admin selected isNewArrival)
-  const newArrivals = useMemo(() => {
-    return categoryFilteredProducts.filter(p => Boolean(p.isNewArrival));
-  }, [categoryFilteredProducts]);
-
-  // Section 2: Most Popular (admin selected isPopular)
-  const popularProducts = useMemo(() => {
-    return categoryFilteredProducts.filter(p => Boolean(p.isPopular));
-  }, [categoryFilteredProducts]);
-
-  // Section 3: Trending Catalog (admin selected isTrending, or fallback if not categorized in others)
-  const trendingProducts = useMemo(() => {
-    return categoryFilteredProducts.filter(p => Boolean(p.isTrending) || (!p.isNewArrival && !p.isPopular));
-  }, [categoryFilteredProducts]);
-
-  const hasAnyProductsInSections = newArrivals.length > 0 || popularProducts.length > 0 || trendingProducts.length > 0;
-
   const activeCategoryObj = useMemo(() => {
     if (!selectedCategory || selectedCategory === 'all') return null;
     return categories.find(c => c.id === selectedCategory);
@@ -84,7 +68,7 @@ export default function Home() {
       <Container maxWidth="xl">
         
         {/* Category Chips Bar */}
-        <Box sx={{ mb: 5 }}>
+        <Box sx={{ mb: 4 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
             <Typography
               variant="subtitle2"
@@ -133,21 +117,19 @@ export default function Home() {
 
         {/* Loading Skeletons */}
         {loading && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, my: 4 }}>
-            {[1, 2].map((s) => (
-              <Box key={s}>
-                <Skeleton width={200} height={32} sx={{ mb: 2 }} />
-                <Box sx={{ display: 'flex', gap: 2.5, overflowX: 'hidden' }}>
-                  {[1, 2, 3, 4].map((i) => (
-                    <Skeleton key={i} variant="rounded" width={260} height={340} sx={{ borderRadius: '12px' }} />
-                  ))}
-                </Box>
-              </Box>
-            ))}
+          <Box sx={{ my: 2 }}>
+            <Skeleton width={200} height={36} sx={{ mb: 2 }} />
+            <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={i}>
+                  <Skeleton variant="rounded" height={360} sx={{ borderRadius: '12px' }} />
+                </Grid>
+              ))}
+            </Grid>
           </Box>
         )}
 
-        {/* Empty Catalog Notice (No products at all) */}
+        {/* Empty Catalog Notice (No products at all in store) */}
         {!loading && allProducts.length === 0 && (
           <Paper
             elevation={0}
@@ -179,7 +161,7 @@ export default function Home() {
         )}
 
         {/* No Products in this Category */}
-        {!loading && allProducts.length > 0 && !hasAnyProductsInSections && (
+        {!loading && allProducts.length > 0 && categoryFilteredProducts.length === 0 && (
           <Paper
             elevation={0}
             sx={{
@@ -213,37 +195,49 @@ export default function Home() {
           </Paper>
         )}
 
-        {/* 1. New Arrivals Section (Admin controlled: isNewArrival) */}
-        {!loading && newArrivals.length > 0 && (
-          <ProductScrollSection
-            title="New Arrivals"
-            subtitle="Latest handpicked gadgets and peripherals added to the store"
-            products={newArrivals}
-            viewAllLink="/products?sort=new"
-            categoriesMap={categoriesMap}
-          />
-        )}
+        {/* Products Grid Section */}
+        {!loading && categoryFilteredProducts.length > 0 && (
+          <Box sx={{ mt: 1 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: { xs: 'flex-start', sm: 'center' },
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: 1,
+                mb: 3
+              }}
+            >
+              <Box>
+                <Typography
+                  variant="h2"
+                  sx={{
+                    fontWeight: 800,
+                    fontSize: { xs: '1.35rem', sm: '1.65rem' },
+                    color: '#111111'
+                  }}
+                >
+                  {activeCategoryObj ? activeCategoryObj.name : 'All Products'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {selectedCategory === 'all'
+                    ? `Explore our verified affiliate collection (${categoryFilteredProducts.length} items)`
+                    : `Showing ${categoryFilteredProducts.length} ${categoryFilteredProducts.length === 1 ? 'product' : 'products'} in ${activeCategoryObj?.name || 'category'}`}
+                </Typography>
+              </Box>
+            </Box>
 
-        {/* 2. Most Popular Section (Admin controlled: isPopular) */}
-        {!loading && popularProducts.length > 0 && (
-          <ProductScrollSection
-            title="Most Popular"
-            subtitle="Top-rated tech and community favorite picks"
-            products={popularProducts}
-            viewAllLink="/products?sort=popular"
-            categoriesMap={categoriesMap}
-          />
-        )}
-
-        {/* 3. Trending Catalog Section (Admin controlled: isTrending) */}
-        {!loading && trendingProducts.length > 0 && (
-          <ProductScrollSection
-            title="Trending Catalog"
-            subtitle="Explore our complete collection across all tech categories"
-            products={trendingProducts}
-            viewAllLink="/products"
-            categoriesMap={categoriesMap}
-          />
+            <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
+              {categoryFilteredProducts.map((prod) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={prod.id}>
+                  <ProductCard
+                    product={prod}
+                    categoryName={categoriesMap[prod.categoryId] || prod.categoryName}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
         )}
 
       </Container>

@@ -74,7 +74,7 @@ export default function ProductFormModal({
       setAffiliateLink('');
       setIsNewArrival(false);
       setIsPopular(false);
-      setIsTrending(true);
+      setIsTrending(false);
     }
     setError('');
   }, [product, open, categories]);
@@ -282,13 +282,13 @@ export default function ProductFormModal({
               />
             </Box>
 
-            {/* Homepage Section Placement Options */}
+            {/* Product Highlight Badges */}
             <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid #E5E7EB' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5, color: '#111111' }}>
-                Homepage Section Placement
+                Product Highlight Badges
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>
-                Select which section(s) on the homepage this product will appear in:
+                Select which badge(s) to display on top of this product card:
               </Typography>
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -303,10 +303,10 @@ export default function ProductFormModal({
                   label={
                     <Box>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        Show in "New Arrivals"
+                        "NEW ARRIVAL" Badge
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Displays in the New Arrivals scroll section on homepage
+                        Displays 'NEW ARRIVAL' badge on top of the product card
                       </Typography>
                     </Box>
                   }
@@ -323,10 +323,10 @@ export default function ProductFormModal({
                   label={
                     <Box>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        Show in "Most Popular"
+                        "POPULAR" Badge
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Displays in the Most Popular scroll section on homepage
+                        Displays 'POPULAR' badge on top of the product card
                       </Typography>
                     </Box>
                   }
@@ -343,10 +343,10 @@ export default function ProductFormModal({
                   label={
                     <Box>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        Show in "Trending Catalog"
+                        "TRENDING" Badge
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Displays in the Trending Catalog scroll section on homepage
+                        Displays 'TRENDING' badge on top of the product card
                       </Typography>
                     </Box>
                   }

@@ -352,9 +352,37 @@ export default function ProductDetails() {
                   borderRadius: '6px'
                 }}
               />
+              {product.isNewArrival && (
+                <Chip
+                  label="NEW ARRIVAL"
+                  size="small"
+                  sx={{
+                    backgroundColor: '#111111',
+                    color: '#FFFFFF',
+                    fontWeight: 700,
+                    fontSize: '0.7rem',
+                    letterSpacing: '0.05em',
+                    borderRadius: '6px'
+                  }}
+                />
+              )}
               {product.isPopular && (
                 <Chip
-                  label="POPULAR PICK"
+                  label="POPULAR"
+                  size="small"
+                  sx={{
+                    backgroundColor: '#111111',
+                    color: '#FFFFFF',
+                    fontWeight: 700,
+                    fontSize: '0.7rem',
+                    letterSpacing: '0.05em',
+                    borderRadius: '6px'
+                  }}
+                />
+              )}
+              {product.isTrending && (
+                <Chip
+                  label="TRENDING"
                   size="small"
                   sx={{
                     backgroundColor: '#111111',
