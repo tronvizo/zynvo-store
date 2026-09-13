@@ -62,13 +62,13 @@ export default function ProductCard({ product, categoryName = '' }) {
       <Box
         sx={{
           position: 'absolute',
-          top: 10,
-          left: 10,
+          top: { xs: 6, sm: 10 },
+          left: { xs: 6, sm: 10 },
           zIndex: 2,
           display: 'flex',
           flexDirection: 'row',
           flexWrap: 'wrap',
-          gap: 0.75,
+          gap: 0.5,
           maxWidth: '85%'
         }}
       >
@@ -80,10 +80,11 @@ export default function ProductCard({ product, categoryName = '' }) {
               backgroundColor: '#111111',
               color: '#FFFFFF',
               fontWeight: 700,
-              fontSize: '0.68rem',
-              letterSpacing: '0.05em',
-              borderRadius: '6px',
-              height: '22px'
+              fontSize: { xs: '0.58rem', sm: '0.65rem' },
+              letterSpacing: '0.04em',
+              borderRadius: '5px',
+              height: { xs: '19px', sm: '22px' },
+              px: 0.25
             }}
           />
         )}
@@ -95,10 +96,11 @@ export default function ProductCard({ product, categoryName = '' }) {
               backgroundColor: '#111111',
               color: '#FFFFFF',
               fontWeight: 700,
-              fontSize: '0.68rem',
-              letterSpacing: '0.05em',
-              borderRadius: '6px',
-              height: '22px'
+              fontSize: { xs: '0.58rem', sm: '0.65rem' },
+              letterSpacing: '0.04em',
+              borderRadius: '5px',
+              height: { xs: '19px', sm: '22px' },
+              px: 0.25
             }}
           />
         )}
@@ -110,17 +112,26 @@ export default function ProductCard({ product, categoryName = '' }) {
               backgroundColor: '#111111',
               color: '#FFFFFF',
               fontWeight: 700,
-              fontSize: '0.68rem',
-              letterSpacing: '0.05em',
-              borderRadius: '6px',
-              height: '22px'
+              fontSize: { xs: '0.58rem', sm: '0.65rem' },
+              letterSpacing: '0.04em',
+              borderRadius: '5px',
+              height: { xs: '19px', sm: '22px' },
+              px: 0.25
             }}
           />
         )}
       </Box>
 
-      {/* Product Image */}
-      <Box sx={{ position: 'relative', pt: '75%', backgroundColor: '#F9FAFB', overflow: 'hidden' }}>
+      {/* Product Image - Full & Proper 1:1 Aspect Ratio with contain */}
+      <Box
+        sx={{
+          position: 'relative',
+          pt: '100%', // 1:1 square ratio - standard e-commerce framing
+          backgroundColor: '#FFFFFF',
+          overflow: 'hidden',
+          borderBottom: '1px solid #F3F4F6'
+        }}
+      >
         <CardMedia
           component="img"
           image={product.imageUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80'}
@@ -131,10 +142,11 @@ export default function ProductCard({ product, categoryName = '' }) {
             left: 0,
             width: '100%',
             height: '100%',
-            objectFit: 'cover',
+            objectFit: 'contain', // Pura aur proper image dikhega, bina kate
+            p: { xs: 1, sm: 1.5 },
             transition: 'transform 0.3s ease',
             '&:hover': {
-              transform: 'scale(1.05)'
+              transform: 'scale(1.04)'
             }
           }}
           loading="lazy"
@@ -142,7 +154,7 @@ export default function ProductCard({ product, categoryName = '' }) {
       </Box>
 
       {/* Product Details */}
-      <CardContent sx={{ p: { xs: 1.5, sm: 2 }, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+      <CardContent sx={{ p: { xs: 1, sm: 1.75 }, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         {categoryName && (
           <Typography
             variant="caption"
@@ -150,9 +162,12 @@ export default function ProductCard({ product, categoryName = '' }) {
               color: '#6B7280',
               fontWeight: 600,
               textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              fontSize: { xs: '0.65rem', sm: '0.72rem' },
-              mb: 0.25
+              letterSpacing: '0.05em',
+              fontSize: { xs: '0.6rem', sm: '0.7rem' },
+              mb: 0.25,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
             }}
           >
             {categoryName}
@@ -163,46 +178,46 @@ export default function ProductCard({ product, categoryName = '' }) {
           variant="subtitle1"
           sx={{
             fontWeight: 700,
-            fontSize: { xs: '0.85rem', sm: '0.95rem' },
+            fontSize: { xs: '0.78rem', sm: '0.9rem' },
             color: '#111111',
-            lineHeight: 1.3,
-            mb: 0.75,
+            lineHeight: 1.25,
+            mb: 0.5,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
-            minHeight: { xs: '2.6em', sm: '2.7em' }
+            minHeight: { xs: '2.5em', sm: '2.5em' }
           }}
         >
           {product.title}
         </Typography>
 
         {/* Rating & Reviews */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.75 }}>
           <Rating
             value={Number(product.rating) || 0}
             precision={0.1}
             readOnly
             size="small"
-            sx={{ color: '#F59E0B', fontSize: { xs: '0.95rem', sm: '1.1rem' } }}
+            sx={{ color: '#F59E0B', fontSize: { xs: '0.82rem', sm: '1rem' } }}
           />
-          <Typography variant="caption" sx={{ color: '#4B5563', fontWeight: 600, fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
-            ({Number(product.rating || 0).toFixed(1)}{product.reviewsCount ? ` • ${product.reviewsCount}` : ''})
+          <Typography variant="caption" sx={{ color: '#4B5563', fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.72rem' } }}>
+            ({Number(product.rating || 0).toFixed(1)})
           </Typography>
         </Box>
 
-        {/* Price and Buy Now Button */}
-        <Box sx={{ mt: 'auto', pt: 1, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: 1 }}>
+        {/* Price and Buy Now CTA */}
+        <Box sx={{ mt: 'auto', pt: 0.75, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, justifyContent: 'space-between', gap: { xs: 0.75, sm: 1 } }}>
           <Box>
-            <Typography variant="caption" sx={{ color: '#6B7280', display: 'block', fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>
+            <Typography variant="caption" sx={{ color: '#6B7280', display: 'block', fontSize: { xs: '0.6rem', sm: '0.68rem' } }}>
               Price
             </Typography>
             <Typography
               variant="h6"
               sx={{
                 fontWeight: 800,
-                fontSize: { xs: '0.95rem', sm: '1.1rem' },
+                fontSize: { xs: '0.88rem', sm: '1.05rem' },
                 color: '#10B981',
                 lineHeight: 1.2
               }}
@@ -216,13 +231,13 @@ export default function ProductCard({ product, categoryName = '' }) {
             variant="contained"
             color="primary"
             size="small"
-            endIcon={<BuyIcon sx={{ fontSize: 13 }} />}
+            endIcon={<BuyIcon sx={{ fontSize: { xs: 11, sm: 13 } }} />}
             onClick={handleBuyNow}
             sx={{
               borderRadius: '6px',
-              px: { xs: 1, sm: 1.5 },
-              py: { xs: 0.6, sm: 0.7 },
-              fontSize: { xs: '0.72rem', sm: '0.8rem' },
+              px: { xs: 0.75, sm: 1.5 },
+              py: { xs: 0.45, sm: 0.6 },
+              fontSize: { xs: '0.68rem', sm: '0.78rem' },
               fontWeight: 700,
               boxShadow: 'none',
               backgroundColor: '#111111',
@@ -243,9 +258,9 @@ export default function ProductCard({ product, categoryName = '' }) {
           size="small"
           onClick={handleViewDetails}
           sx={{
-            mt: 1,
-            py: 0.5,
-            fontSize: '0.74rem',
+            mt: 0.75,
+            py: { xs: 0.35, sm: 0.5 },
+            fontSize: { xs: '0.68rem', sm: '0.74rem' },
             fontWeight: 600,
             textTransform: 'none',
             color: '#374151',

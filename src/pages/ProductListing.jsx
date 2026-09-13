@@ -218,12 +218,12 @@ export default function ProductListing() {
             sx={{
               display: 'grid',
               gridTemplateColumns: {
-                xs: 'repeat(1, 1fr)',
+                xs: 'repeat(2, 1fr)',
                 sm: 'repeat(2, 1fr)',
                 md: 'repeat(3, 1fr)',
                 lg: 'repeat(4, 1fr)'
               },
-              gap: { xs: 2, sm: 2.5, md: 3 }
+              gap: { xs: 1.25, sm: 2, md: 2.5, lg: 3 }
             }}
           >
             {displayedProducts.map((product) => (
