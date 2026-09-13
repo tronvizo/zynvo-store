@@ -119,13 +119,22 @@ export default function Home() {
         {loading && (
           <Box sx={{ my: 2 }}>
             <Skeleton width={200} height={36} sx={{ mb: 2 }} />
-            <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: 'repeat(1, 1fr)',
+                  sm: 'repeat(2, 1fr)',
+                  md: 'repeat(3, 1fr)',
+                  lg: 'repeat(4, 1fr)'
+                },
+                gap: { xs: 2, sm: 2.5, md: 3 }
+              }}
+            >
               {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={i}>
-                  <Skeleton variant="rounded" height={360} sx={{ borderRadius: '12px' }} />
-                </Grid>
+                <Skeleton key={i} variant="rounded" height={360} sx={{ borderRadius: '12px' }} />
               ))}
-            </Grid>
+            </Box>
           </Box>
         )}
 
@@ -227,16 +236,26 @@ export default function Home() {
               </Box>
             </Box>
 
-            <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: 'repeat(1, 1fr)',
+                  sm: 'repeat(2, 1fr)',
+                  md: 'repeat(3, 1fr)',
+                  lg: 'repeat(4, 1fr)'
+                },
+                gap: { xs: 2, sm: 2.5, md: 3 }
+              }}
+            >
               {categoryFilteredProducts.map((prod) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={prod.id}>
-                  <ProductCard
-                    product={prod}
-                    categoryName={categoriesMap[prod.categoryId] || prod.categoryName}
-                  />
-                </Grid>
+                <ProductCard
+                  key={prod.id}
+                  product={prod}
+                  categoryName={categoriesMap[prod.categoryId] || prod.categoryName}
+                />
               ))}
-            </Grid>
+            </Box>
           </Box>
         )}
 

@@ -214,16 +214,26 @@ export default function ProductListing() {
       ) : (
         /* Responsive Product Grid: 2 columns mobile -> 3 tablet -> 4-5 desktop */
         <>
-          <Grid container spacing={{ xs: 1.5, sm: 2, md: 3 }}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+                lg: 'repeat(4, 1fr)'
+              },
+              gap: { xs: 2, sm: 2.5, md: 3 }
+            }}
+          >
             {displayedProducts.map((product) => (
-              <Grid item key={product.id} xs={6} sm={4} md={3} lg={2.4}>
-                <ProductCard
-                  product={product}
-                  categoryName={categoriesMap[product.categoryId] || ''}
-                />
-              </Grid>
+              <ProductCard
+                key={product.id}
+                product={product}
+                categoryName={categoriesMap[product.categoryId] || ''}
+              />
             ))}
-          </Grid>
+          </Box>
 
           {/* Load More Button */}
           {hasMore && (
